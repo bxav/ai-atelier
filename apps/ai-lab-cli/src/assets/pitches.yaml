@@ -1,0 +1,8 @@
+longPrompt: |
+  Create a 20 min pitch without slide about {input}
+
+smallPrompt: |
+  Create a 3 min pitch without slide from this 20 min pitch:\n {input}
+
+elevatorPitchPrompt: |
+  Create an elevator pitch, around 30 seconds from this pitch: {input}

@@ -1,0 +1,9 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@bxav/ui-components": ["packages/ui-components/src/index.ts"],
+        "@bxav/ui-components/*": ["packages/ui-components/src/*"]
+      }
+    }
+  }

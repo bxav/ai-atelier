@@ -1,0 +1,23 @@
+{
+  "name": "shared-ai-models-config",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/shared-ai-models-config/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/shared-ai-models-config",
+        "main": "packages/shared-ai-models-config/src/index.ts",
+        "tsConfig": "packages/shared-ai-models-config/tsconfig.lib.json",
+        "assets": ["packages/shared-ai-models-config/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}

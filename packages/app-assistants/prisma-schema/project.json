@@ -1,0 +1,37 @@
+{
+  "name": "app-assistants-prisma-schema",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/app-assistants/prisma-schema/src",
+  "projectType": "library",
+  "targets": {
+    "prisma": {
+      "command": "prisma",
+      "options": {
+        "cwd": "packages/app-assistants/prisma-schema"
+      }
+    },
+    "generate-types-prd": {
+      "command": "prisma generate --no-engine",
+      "options": {
+        "cwd": "packages/app-assistants/prisma-schema"
+      }
+    },
+    "generate-types": {
+      "command": "prisma generate",
+      "options": {
+        "cwd": "packages/app-assistants/prisma-schema"
+      }
+    },
+    "migrate": {
+      "command": "prisma migrate dev",
+      "options": {
+        "cwd": "packages/app-assistants/prisma-schema"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    }
+  },
+  "tags": []
+}

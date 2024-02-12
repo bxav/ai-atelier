@@ -1,0 +1,63 @@
+{
+  "name": "ai-lab-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/ai-lab-api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/ai-lab-api",
+        "main": "apps/ai-lab-api/src/main.ts",
+        "tsConfig": "apps/ai-lab-api/tsconfig.app.json",
+        "assets": ["apps/ai-lab-api/src/assets"],
+        "isolatedConfig": true,
+        "generatePackageJson": true,
+        "webpackConfig": "apps/ai-lab-api/webpack.config.js",
+        "transformers": [
+          {
+            "name": "@nestjs/swagger/plugin",
+            "options": {
+              "introspectComments": true
+            }
+          }
+        ]
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "ai-lab-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "ai-lab-api:build:development"
+        },
+        "production": {
+          "buildTarget": "ai-lab-api:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/ai-lab-api/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

@@ -1,0 +1,50 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2015",
+    "module": "esnext",
+    "lib": ["es2020", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@bxav/app-assistants-common": [
+        "packages/app-assistants/common/src/index.ts"
+      ],
+      "@bxav/app-assistants-common/server": [
+        "packages/app-assistants/common/src/server.ts"
+      ],
+      "@bxav/app-assistants-prisma-schema": [
+        "packages/app-assistants/prisma-schema/src/index.ts"
+      ],
+      "@bxav/app-playground-common": [
+        "packages/app-playground/common/src/index.ts"
+      ],
+      "@bxav/app-playground-common/server": [
+        "packages/app-playground/common/src/server.ts"
+      ],
+      "@bxav/app-playground-prisma-schema": [
+        "packages/app-playground/prisma-schema/src/index.ts"
+      ],
+      "@bxav/kit-chatbot": ["packages/kit-chatbot/src/index.ts"],
+      "@bxav/kit-chatbot/server": ["packages/kit-chatbot/src/server.ts"],
+      "@bxav/shared-ai-models-config": [
+        "packages/shared-ai-models-config/src/index.ts"
+      ],
+      "@bxav/ui-components": ["packages/ui-components/src/index.ts"],
+      "@bxav/ui-saas-components": ["packages/ui-saas-components/src/index.ts"],
+      "@bxav/ui-saas-components/server": [
+        "packages/ui-saas-components/src/server.ts"
+      ],
+      "@bxav/ui-utils": ["packages/ui-utils/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
