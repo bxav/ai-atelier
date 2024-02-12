@@ -11,6 +11,7 @@ import { StateGraphBuilder } from './state-graph.builder';
 import { SupervisorService } from './supervisor.service';
 import { TechnicalCopywriterAgentService } from './technical-copywriter-agent.service';
 import { TechnicalCopywriterCommand } from './technical-copywriter.command';
+import { ReactRefactoCommand } from './react-refacto.command';
 
 @Module({
   imports: [ConfigModule.forRoot()],
@@ -22,6 +23,7 @@ import { TechnicalCopywriterCommand } from './technical-copywriter.command';
     CreatePitchesCommand,
     ReactExpertCommand,
     TechnicalCopywriterCommand,
+    ReactRefactoCommand,
     TechnicalCopywriterAgentService,
     AskPathQuestions,
     AskObjectiveQuestions,
