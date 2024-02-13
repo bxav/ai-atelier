@@ -1,0 +1,24 @@
+{
+  "name": "@bxav/code-artisan",
+  "author": "Xavier Buillit <x@bxav.net",
+  "description": "An AI-driven CLI tool for code refactoring across various programming languages.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bxav/ai-atelier/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bxav/ai-atelier.git"
+  },
+  "homepage": "https://github.com/bxav/ai-atelier/tree/main/apps/code-artisan-cli/src#readme",
+  "keywords": [
+    "code-refactoring",
+    "CLI",
+    "AI-driven",
+    "programming",
+    "development-tools"
+  ],
+  "bin": {
+    "code-artisan": "main.js"
+  }
+}

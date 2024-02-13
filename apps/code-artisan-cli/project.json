@@ -1,0 +1,57 @@
+{
+  "name": "code-artisan-cli",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/code-artisan-cli/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/code-artisan-cli",
+        "main": "apps/code-artisan-cli/src/main.ts",
+        "tsConfig": "apps/code-artisan-cli/tsconfig.app.json",
+        "generatePackageJson": true,
+        "assets": ["apps/code-artisan-cli/src/assets", "apps/code-artisan-cli/src/LICENSE.md", "apps/code-artisan-cli/src/README.md"],
+        "webpackConfig": "apps/code-artisan-cli/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "publish": {
+      "command": "node tools/scripts/publish.mjs code-artisan-cli {args.ver} {args.tag}",
+      "dependsOn": ["build"]
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "code-artisan-cli:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "code-artisan-cli:build:development"
+        },
+        "production": {
+          "buildTarget": "code-artisan-cli:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/code-artisan-cli/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
