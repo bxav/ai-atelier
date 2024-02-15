@@ -33,6 +33,7 @@
       "@bxav/app-playground-prisma-schema": [
         "packages/app-playground/prisma-schema/src/index.ts"
       ],
+      "@bxav/cli-utils": ["packages/cli-utils/src/index.ts"],
       "@bxav/code-artisan": ["packages/code-artisan/src/index.ts"],
       "@bxav/kit-chatbot": ["packages/kit-chatbot/src/index.ts"],
       "@bxav/kit-chatbot/server": ["packages/kit-chatbot/src/server.ts"],

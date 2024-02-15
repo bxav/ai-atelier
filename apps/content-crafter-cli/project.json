@@ -1,7 +1,7 @@
 {
-  "name": "code-artisan-cli",
+  "name": "content-crafter-cli",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/code-artisan-cli/src",
+  "sourceRoot": "apps/content-crafter-cli/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -13,9 +13,9 @@
       "options": {
         "target": "node",
         "compiler": "tsc",
-        "outputPath": "dist/apps/code-artisan-cli",
-        "main": "apps/code-artisan-cli/src/main.ts",
-        "tsConfig": "apps/code-artisan-cli/tsconfig.app.json",
+        "outputPath": "dist/apps/content-crafter-cli",
+        "main": "apps/content-crafter-cli/src/main.ts",
+        "tsConfig": "apps/content-crafter-cli/tsconfig.app.json",
         "generatePackageJson": true,
         "assets": [
           {
@@ -23,9 +23,9 @@
             "input": "apps/code-artisan-cli/",
             "output": "."
           },
-          "apps/code-artisan-cli/src/assets"
+          "apps/content-crafter-cli/src/assets"
         ],
-        "webpackConfig": "apps/code-artisan-cli/webpack.config.js"
+        "webpackConfig": "apps/content-crafter-cli/webpack.config.js"
       },
       "configurations": {
         "development": {},
@@ -33,7 +33,7 @@
       }
     },
     "publish": {
-      "command": "node tools/scripts/publish.mjs code-artisan-cli {args.ver} {args.tag}",
+      "command": "node tools/scripts/publish.mjs content-crafter-cli {args.ver} {args.tag}",
       "dependsOn": [
         "build"
       ]
@@ -42,14 +42,14 @@
       "executor": "@nx/js:node",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "code-artisan-cli:build"
+        "buildTarget": "content-crafter-cli:build"
       },
       "configurations": {
         "development": {
-          "buildTarget": "code-artisan-cli:build:development"
+          "buildTarget": "content-crafter-cli:build:development"
         },
         "production": {
-          "buildTarget": "code-artisan-cli:build:production"
+          "buildTarget": "content-crafter-cli:build:production"
         }
       }
     },
@@ -62,7 +62,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "apps/code-artisan-cli/jest.config.ts"
+        "jestConfig": "apps/content-crafter-cli/jest.config.ts"
       }
     }
   },
