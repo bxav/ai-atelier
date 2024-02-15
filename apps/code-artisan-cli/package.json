@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/bxav/ai-atelier.git"
   },
-  "homepage": "https://github.com/bxav/ai-atelier/tree/main/apps/code-artisan-cli/src#readme",
+  "homepage": "https://github.com/bxav/ai-atelier/tree/main/apps/code-artisan-cli#readme",
   "keywords": [
     "code-refactoring",
     "CLI",

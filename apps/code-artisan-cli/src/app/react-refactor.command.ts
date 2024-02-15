@@ -33,8 +33,6 @@ export class ReactRefactorCommand extends CommandRunner {
         path.join(__dirname, 'assets', 'react-coding-styles.md')
     );
 
-    console.log(codingStyles);
-
     let examples = loadConfig(
       options.examples ?? path.join(__dirname, 'assets', 'react-examples.md')
     );

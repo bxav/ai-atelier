@@ -20,7 +20,7 @@
         "assets": [
           {
             "glob": "*.md",
-            "input": "apps/code-artisan-cli/",
+            "input": "apps/content-crafter-cli/",
             "output": "."
           },
           "apps/content-crafter-cli/src/assets"

@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/bxav/ai-atelier.git"
   },
-  "homepage": "https://github.com/bxav/ai-atelier/tree/main/apps/content-crafter-cli/src#readme",
+  "homepage": "https://github.com/bxav/ai-atelier/tree/main/apps/content-crafter-cli#readme",
   "keywords": [
     "code-refactoring",
     "CLI",
