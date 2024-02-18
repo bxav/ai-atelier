@@ -12,10 +12,11 @@ export class InitCommand extends CommandRunner {
     super();
   }
   async run(): Promise<void> {
-    const { expertType } = await this.inquirer.ask<{ expertType: string }>(
-      'ask-build-expert-questions',
-      undefined
-    );
+    const { expertType, expertRole, expertFilePattern } = await this.inquirer.ask<{
+      expertType: string;
+      expertRole: string;
+      expertFilePattern: string;
+    }>('ask-build-expert-questions', undefined);
 
     console.log('Initializing CodeArtisan for', expertType, '...');
 
@@ -27,7 +28,7 @@ export class InitCommand extends CommandRunner {
     const examplesDir = path.join(exertDir, 'examples');
     this.ensureDirectory(examplesDir, 'Created examples directory');
 
-    const codingStylesUrl = `https://raw.githubusercontent.com/bxav/ai-atelier/main/apps/code-artisan-cli/src/assets/${expertType}/coding-styles.md`;
+    const codingStylesUrl = `https://raw.githubusercontent.com/bxav/ai-atelier/main/apps/code-artisan-cli/examples/${expertType}/coding-styles.md`;
     await this.fetchAndSaveFile(
       codingStylesUrl,
       exertDir,
@@ -35,17 +36,21 @@ export class InitCommand extends CommandRunner {
       'Coding styles'
     );
 
-    const exampleUrl = `https://raw.githubusercontent.com/bxav/ai-atelier/main/apps/code-artisan-cli/src/assets/${expertType}/examples.md`;
+    const exampleUrl = `https://raw.githubusercontent.com/bxav/ai-atelier/main/apps/code-artisan-cli/examples/${expertType}/examples.md`;
     await this.fetchAndSaveFile(
       exampleUrl,
-      exertDir,
+      examplesDir,
       'examples.md',
       'examples'
     );
 
     // Create config.yml with React expert setup
     const configPath = path.join(codeArtisanDir, 'config.yml');
-    const configContent = this.generateConfigContent();
+    const configContent = this.generateConfigContent({
+      expertType,
+      expertRole,
+      expertFilePattern,
+    });
     fs.writeFileSync(configPath, configContent);
     console.log('Created config.yml with React expert setup');
   }
@@ -73,19 +78,19 @@ export class InitCommand extends CommandRunner {
     }
   }
 
-  private generateConfigContent(): string {
+  private generateConfigContent({ expertType, expertRole, expertFilePattern }): string {
     return `commands:
 # lint: nx lint
 # test: nx test
 # build: nx build
 
 experts:
-  react:
-    pattern: (*.tsx|*.jsx)
-    role: Senior React Developer
+  ${expertType}:
+    pattern: ${expertFilePattern}
+    role: ${expertRole}
     codingStyles:
-      - path: ./.codeartisan/react-coding-styles.md
+      - path: ./.codeartisan/${expertType}/coding-styles.md
     examples:
-      - path: ./.codeartisan/examples/reactExample1.md`;
+      - path: ./.codeartisan/${expertType}/examples/examples.md`;
   }
 }

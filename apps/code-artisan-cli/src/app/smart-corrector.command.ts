@@ -63,7 +63,7 @@ export class SmartCorrectorCommand extends CommandRunner {
     }
 
     const expertName = options.expert || Object.keys(config.experts)[0];
-    const expertConfig = config.experts[expertName]
+    const expertConfig = config.experts[expertName];
 
     if (!expertConfig) {
       console.error(`Expert '${expertName}' not found.`);
@@ -95,7 +95,11 @@ export class SmartCorrectorCommand extends CommandRunner {
       filePaths = allFiles;
     }
 
-    filePaths = filePaths.filter((path) => path.endsWith('.tsx'));
+    filePaths = filePaths.filter((filePath) =>
+      (expertConfig.pattern as string)
+        .split(',')
+        .some((p) => filePath.endsWith(p.trim()))
+    );
 
     const fileContents = await this.loadFilesContent(filePaths);
 
@@ -167,7 +171,7 @@ export class SmartCorrectorCommand extends CommandRunner {
       role,
       codingStyles,
       examples,
-    }: { prompt: string; role: string,  codingStyles: string; examples: string }
+    }: { prompt: string; role: string; codingStyles: string; examples: string }
   ): Promise<Record<string, string>> {
     const model = new ChatOpenAI({
       modelName: 'gpt-4-1106-preview',
