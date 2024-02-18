@@ -1,11 +1,18 @@
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 
-import { ReactRefactorCommand } from './react-refactor.command';
+import { SmartCorrectorCommand } from './smart-corrector.command';
 import { AskOpenaiKeyQuestions } from './questions/ask-openai-key.questions';
+import { InitCommand } from './init.command';
+import { AskBuildExpertQuestions } from './questions/build-expert.questions';
 
 @Module({
   imports: [ConfigModule.forRoot()],
-  providers: [ReactRefactorCommand, AskOpenaiKeyQuestions],
+  providers: [
+    SmartCorrectorCommand,
+    InitCommand,
+    AskOpenaiKeyQuestions,
+    AskBuildExpertQuestions,
+  ],
 })
 export class AppModule {}

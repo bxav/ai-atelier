@@ -47,6 +47,7 @@
     "date-fns": "^3.3.1",
     "jotai": "^2.6.2",
     "langchain": "^0.1.17",
+    "loading-cli": "^1.1.2",
     "lucide-react": "^0.314.0",
     "nest-commander": "^3.12.5",
     "next": "14.0.4",
