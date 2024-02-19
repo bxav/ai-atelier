@@ -2,7 +2,7 @@ import { Question, QuestionSet } from 'nest-commander';
 
 const filePatterns = {
   next: '.tsx, .jsx',
-  nestjs: '.ts',
+  nestjs: '.service.ts, .module.ts, .controller.ts',
   'c++': '.c, .cpp',
   python: '.py',
 };

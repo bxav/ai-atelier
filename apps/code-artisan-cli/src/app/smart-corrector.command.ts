@@ -11,6 +11,11 @@ import {
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import * as yaml from 'js-yaml';
+import {
+  HumanMessagePromptTemplate,
+  SystemMessagePromptTemplate,
+} from '@langchain/core/prompts';
+
 const loading = require('loading-cli');
 
 import { getChangedFiles, loadConfig, loadTextFile } from '@bxav/cli-utils';
@@ -26,10 +31,7 @@ function getFilesRecursively(directory: string): string[] {
       /* Recurse into a subdirectory */
       results = results.concat(getFilesRecursively(file));
     } else {
-      /* Is a file */
-      if (file.endsWith('.tsx')) {
-        results.push(file);
-      }
+      results.push(file);
     }
   });
   return results;
@@ -175,11 +177,18 @@ export class SmartCorrectorCommand extends CommandRunner {
   ): Promise<Record<string, string>> {
     const model = new ChatOpenAI({
       modelName: 'gpt-4-1106-preview',
+      temperature: 0,
       openAIApiKey:
         process.env.OPENAI_API_KEY || (await this.promptForOpenaiKey()),
     });
 
-    const template = ChatPromptTemplate.fromTemplate(prompt);
+    const template = ChatPromptTemplate.fromMessages([
+      SystemMessagePromptTemplate.fromTemplate(prompt),
+      HumanMessagePromptTemplate.fromTemplate(
+        `Please, refactor the following code and respond directly to this message with the refactored code without adding markdown around. Here is the code to refactor:`
+      ),
+      HumanMessagePromptTemplate.fromTemplate('{input}'),
+    ]);
     const outputParser = new StringOutputParser();
     const chain = RunnableSequence.from([template, model, outputParser]);
 
@@ -191,7 +200,10 @@ export class SmartCorrectorCommand extends CommandRunner {
         examples,
         role,
         input: content,
-      }))
+      })),
+      {
+        maxConcurrency: 5,
+      }
     );
 
     load.stop();
@@ -295,7 +307,10 @@ export class SmartCorrectorCommand extends CommandRunner {
     newFileContents: Record<string, string>
   ): Promise<void> {
     for (const [filePath, content] of Object.entries(newFileContents)) {
-      fs.writeFileSync(filePath, content);
+      fs.writeFileSync(
+        filePath,
+        content.replace(/^```.*\n/, '').replace(/\n```$/, '\n')
+      );
     }
   }
 

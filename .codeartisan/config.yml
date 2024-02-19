@@ -1,0 +1,21 @@
+commands:
+# lint: nx lint
+# test: nx test
+# build: nx build
+
+experts:
+  next:
+    pattern: .tsx, .jsx
+    role: Senior Next Engineer, Using Next.js 13 with the App router
+    codingStyles:
+      - path: ./.codeartisan/next/coding-styles.md
+    examples:
+      - path: ./.codeartisan/next/examples/examples.md
+      - path: ./.codeartisan/next/examples/examples2.md
+  nestjs:
+    pattern: .service.ts, .module.ts, .controller.ts
+    role: Senior Nestjs Engineer
+    codingStyles:
+      - path: ./.codeartisan/nestjs/coding-styles.md
+    examples:
+      - path: ./.codeartisan/nestjs/examples/examples.md

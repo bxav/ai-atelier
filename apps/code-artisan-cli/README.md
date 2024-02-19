@@ -34,7 +34,7 @@ Edit the `config.yml` file within the `.codeartisan` directory to suit your proj
 ```yml
 experts:
   react:
-    pattern: (*.tsx|*.jsx)
+    pattern: .tsx, *.jsx
     role: Senior React Developer
     codingStyles:
       - path: ./.codeartisan/react-coding-styles.md
@@ -42,7 +42,7 @@ experts:
       - path: ./.codeartisan/examples/reactExample1.tsx
       - path: ./.codeartisan/examples/reactExample2.tsx
   nestjs:
-    pattern: (*.service.ts|*.module.ts|*.controller.ts)
+    pattern: .service.ts, .module.ts, .controller.ts
     role: Senior Nodejs Developer, expert in NestJS
     codingStyles:
       - path: ./.codeartisan/nestjs-coding-styles.md
