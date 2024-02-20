@@ -1,17 +1,18 @@
 # ContentCrafter
 
-ContentCrafter is a revolutionary Command Line Interface (CLI) tool designed to bridge the gap between codebases and content creation. By analyzing your code, ContentCrafter intelligently suggests opportunities for creating technical documents, blog posts, YouTube video scripts, and presentations, transforming your code into compelling narratives and learning resources.
+ContentCrafter is an innovative Command Line Interface (CLI) tool designed to transform codebases into captivating narratives and educational resources. By leveraging insights from your code, ContentCrafter facilitates the creation of technical documents, blog posts, video scripts, and presentations, enabling developers to share their knowledge and insights effectively.
 
 ## Features
 
-- **Intelligent Code Analysis**: Dives deep into your codebase to identify areas ripe for content creation, based on complexity, documentation, and innovative solutions.
-- **Diverse Content Suggestions**: Proposes a range of content formats tailored to your code's story, including technical documentation, in-depth blog posts, engaging video scripts, and informative presentation outlines.
-- **Customizable Templates**: Offers starter templates for each content type, providing a structured starting point for your creativity.
-- **Seamless Integration**: Works effortlessly with your existing codebase and development workflow, requiring minimal setup.
+- **Intelligent Content Analysis:** Scans your codebase to identify opportunities for content creation, focusing on areas of complexity, comprehensive documentation, and innovative solutions.
+- **Diverse Content Suggestions:** Offers content format suggestions tailored to your code's story, including technical documentation, in-depth blog posts, engaging video scripts, and informative presentations.
+- **Customizable Writing Styles:** Configures writing styles for different content types, ensuring consistency in tone, formality, and audience engagement.
+- **Content Enhancement:** The `enhance` command rewrites existing content files, improving clarity, engagement, and adherence to specified writing styles.
+- **Seamless Integration:** Designed to integrate effortlessly with your existing workflow, requiring minimal setup.
 
 ## Installation
 
-Install ContentCrafter globally via npm to use it in any project directory:
+Install ContentCrafter globally via npm to use it across your projects:
 
 ```bash
 npm install -g @bxav/content-crafter
@@ -19,61 +20,61 @@ npm install -g @bxav/content-crafter
 
 ## Getting Started
 
-Navigate to your project directory and run ContentCrafter to start uncovering content creation opportunities:
+1. **Initialization:** Set up ContentCrafter in your project by running the `init` command. This creates a `.contentcrafter` directory in your project root, containing a `config.yml` for configuration and an `examples` directory.
 
-```bash
-content-crafter analyze
-```
+    ```bash
+    content-crafter init
+    ```
 
-### Analyze Specific Files or Directories
+2. **Configuration:** Customize ContentCrafter to your project's needs by editing the `config.yml` file within the `.contentcrafter` directory, specifying content areas, writing styles, and examples.
 
-To focus the analysis on specific files or directories, use the `--path` option:
+3. **Content Analysis:** Use the `analyze` command to identify content creation opportunities within your codebase.
 
-```bash
-content-crafter analyze --path ./src/utils
-```
+    ```bash
+    content-crafter analyze
+    ```
 
-### Generate Content Templates
+4. **Content Enhancement:** Improve existing content for better clarity and engagement with the `enhance` command.
 
-Generate a template for a suggested content type with:
+    ```bash
+    content-crafter enhance ./path/to/content.md
+    ```
 
-```bash
-content-crafter generate --type blog-post --topic "Implementing Custom Hooks in React"
-```
+## Commands
 
-## Configuration
+- **`init`**: Initializes ContentCrafter in your project, setting up necessary configurations.
+- **`analyze`**: Analyzes your codebase to suggest content creation opportunities.
+- **`enhance`**: Rewrites specified content files to improve quality and align with writing styles.
 
-Customize ContentCrafter's behavior with a `.contentcrafterrc` configuration file in your project root. This file allows you to specify preferences, such as preferred content types, analysis depth, and more.
+## Configuring Writing Styles
 
-Example `.contentcrafterrc`:
+Define your preferred writing styles for each content type in the `config.yml` file to ensure consistency across your content:
 
 ```yaml
-analysis:
-  depth: "deep"
-  exclude:
-    - "node_modules/"
-    - "tests/"
-content:
-  preferredTypes:
-    - "blog-post"
-    - "tech-doc"
-  language: "en"
+contentAreas:
+  blogPosts:
+    pattern: .md, *.docx
+    focus: Engaging Narrative
+    writingStyle:
+      tone: conversational
+      formality: casual
+      audience: general public
+    templates:
+      - path: ./.contentcrafter/templates/blog-post-template.md
+```
+
+## Enhancing Content
+
+Use the `enhance` command to refine content, applying improvements for readability, SEO, and adherence to your configured writing styles:
+
+```bash
+content-crafter enhance ./content/blog/my-article.md
 ```
 
 ## Contributing
 
-We welcome contributions to ContentCrafter! Whether it's adding new features, enhancing existing ones, or fixing bugs, your input helps make ContentCrafter better for everyone. Check out our [contribution guidelines](#) for more details.
+Contributions are welcome! If you're interested in adding features, enhancing functionality, or fixing bugs, please review our contribution guidelines.
 
 ## License
 
 ContentCrafter is [MIT licensed](LICENSE).
-
----
-
-### Customization Notes:
-
-- **Installation Instructions**: Make sure the npm package name matches your actual package name on npm.
-- **Getting Started/Usage**: Adjust the commands and options based on the actual functionality and interface of ContentCrafter.
-- **Configuration**: The example provided is generic; tailor it to match the actual configurable options of ContentCrafter.
-- **Contributing**: Replace the placeholder URL (`#`) with the actual link to your contribution guidelines.
-- **License**: Confirm the license type and ensure you include a LICENSE file in your repository if you're open-sourcing the tool.
