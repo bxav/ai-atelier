@@ -12,8 +12,8 @@ export class AskContentAreaQuestions {
   @Question({
     message: 'What type of content area would you like to define?',
     name: 'contentType',
-    choices: ['blog', 'docs', 'tutorials', 'caseStudies'],
-    default: 'blog',
+    choices: ['docs', 'blog', 'tutorials', 'caseStudies'],
+    default: 'docs',
     type: 'list',
   })
   parseContentType(type: string): string {
@@ -33,8 +33,8 @@ export class AskContentAreaQuestions {
 
   @Question({
     name: 'contentFilePattern',
-    message: 'Specify the file pattern for this content area (e.g., *.md for Markdown files)',
-    default: '*.md',
+    message: 'Specify the file pattern for this content area (e.g., .md for Markdown files)',
+    default: '.md',
   })
   parseFilePattern(pattern: string) {
     return pattern;

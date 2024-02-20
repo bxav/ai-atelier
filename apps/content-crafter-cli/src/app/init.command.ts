@@ -12,17 +12,13 @@ const TEMPLATE_EXAMPLE_URL =
   'https://raw.githubusercontent.com/bxav/content-crafter/main/templates';
 
 const CONFIG_CONTENT_TEMPLATE = `contentAreas:
-  {{contentArea}}:
-#    pattern: {{filePattern}}
+  {{contentType}}:
+    pattern: {{filePattern}}
     focus: {{contentFocus}}
-    writingStyle:
-      tone: {{tone}}
-      formality: {{formality}}
-      audience: {{audience}}
-    templates:
-      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentArea}}/templates/template.md
+#    templates:
+#      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/templates/template.md
 #    examples:
-#      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentArea}}/examples/example.md`;
+#      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/examples/example.md`;
 
 @Command({
   name: 'init',
@@ -37,22 +33,22 @@ export class InitCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    const { contentArea, filePattern, contentFocus, tone, formality, audience } =
+    const { contentType, contentFocus, contentFilePattern } =
       await this.inquirer.ask<{
-        contentArea: string;
-        filePattern: string;
+        contentType: string;
         contentFocus: string;
-        tone: string;
-        formality: string;
-        audience: string;
+        contentFilePattern: string;
       }>('ask-content-area-questions', undefined);
 
-    console.log('Initializing ContentCrafter for', contentArea, '...');
+    console.log('Initializing ContentCrafter for', contentType, '...');
 
-    const contentCrafterDir = path.join(process.cwd(), BASE_CONTENT_CRAFTER_DIR);
+    const contentCrafterDir = path.join(
+      process.cwd(),
+      BASE_CONTENT_CRAFTER_DIR
+    );
     await this.fileManager.ensureDirectory(contentCrafterDir);
 
-    const areaDir = path.join(contentCrafterDir, contentArea);
+    const areaDir = path.join(contentCrafterDir, contentType);
     const templatesDir = path.join(areaDir, TEMPLATES_DIR_NAME);
     const examplesDir = path.join(areaDir, EXAMPLES_DIR_NAME);
     await this.fileManager.ensureDirectory(templatesDir);
@@ -72,15 +68,12 @@ export class InitCommand extends CommandRunner {
 
     const configPath = path.join(contentCrafterDir, CONFIG_FILE_NAME);
     const configContent = this.generateConfigContent(
-      contentArea,
-      filePattern,
+      contentType,
       contentFocus,
-      tone,
-      formality,
-      audience
+      contentFilePattern
     );
     await fs.writeFile(configPath, configContent);
-    console.log(`Created config.yml for ${contentArea} content area setup`);
+    console.log(`Created config.yml for ${contentType} content area setup`);
   }
 
   private async fetchAndSaveFile(
@@ -99,18 +92,12 @@ export class InitCommand extends CommandRunner {
   }
 
   private generateConfigContent(
-    contentArea: string,
-    filePattern: string,
+    contentType: string,
     contentFocus: string,
-    tone: string,
-    formality: string,
-    audience: string
+    contentFilePattern: string
   ): string {
-    return CONFIG_CONTENT_TEMPLATE.replace('{{contentArea}}', contentArea)
-      .replace('{{filePattern}}', filePattern)
+    return CONFIG_CONTENT_TEMPLATE.replace(/{{contentType}}/g, contentType)
       .replace('{{contentFocus}}', contentFocus)
-      .replace('{{tone}}', tone)
-      .replace('{{formality}}', formality)
-      .replace('{{audience}}', audience);
+      .replace('{{filePattern}}', contentFilePattern);
   }
 }

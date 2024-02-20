@@ -1,0 +1,8 @@
+contentAreas:
+  docs:
+    pattern: .md
+    focus: Technical documentation, API references
+#    templates:
+#      - path: ./.contentcrafter/docs/templates/template.md
+#    examples:
+#      - path: ./.contentcrafter/docs/examples/example.md

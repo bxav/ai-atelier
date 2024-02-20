@@ -2,11 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import {
-  Command,
-  CommandRunner,
-  Option,
-} from 'nest-commander';
+import { Command, CommandRunner, Option } from 'nest-commander';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import * as yaml from 'js-yaml';
@@ -37,7 +33,10 @@ function getFilesRecursively(directory: string): string[] {
 
 @Command({ name: 'enhance', description: 'Enhance content quality' })
 export class EnhanceCommand extends CommandRunner {
-  async run(params: string[], options: { config: string }): Promise<void> {
+  async run(
+    params: string[],
+    options: { config: string; type: string }
+  ): Promise<void> {
     const config = this.loadConfig(options.config);
     if (!config) {
       console.error('Failed to load configuration.');
@@ -50,33 +49,55 @@ export class EnhanceCommand extends CommandRunner {
       return;
     }
 
-    console.log('Enhancing content files...');
+    const contentType = options.type || Object.keys(config.contentAreas)[0];
+    const contentArea = config.contentAreas[contentType];
+
+    if (!contentArea) {
+      console.error('No content area found for type:', contentType);
+      return;
+    }
+
+    console.log(
+      `Enhancing content for ${contentType} with focus on ${contentArea.focus}...`
+    );
 
     let filePaths = params;
     if (!filePaths.length) {
       console.error('No files specified for enhancement.');
       return;
+    } else {
+      let allFiles: string[] = [];
+      filePaths.forEach((path) => {
+        if (fs.statSync(path).isDirectory()) {
+          allFiles = allFiles.concat(getFilesRecursively(path));
+        } else {
+          allFiles.push(path);
+        }
+      });
+      filePaths = allFiles;
     }
 
-    let allFiles: string[] = [];
-    filePaths.forEach((filePath) => {
-      if (fs.statSync(filePath).isDirectory()) {
-        allFiles = allFiles.concat(getFilesRecursively(filePath));
-      } else {
-        allFiles.push(filePath);
-      }
-    });
+    filePaths = filePaths.filter((filePath) =>
+      (contentArea.pattern as string)
+        .split(',')
+        .some((p) => filePath.endsWith(p.trim()))
+    );
 
-    const fileContents = await this.loadFilesContent(allFiles);
+    const fileContents = await this.loadFilesContent(filePaths);
 
-    const newFileContents = await this.enhanceContent(fileContents, contentAreas);
+    const newFileContents = await this.enhanceContent(
+      fileContents,
+      contentArea
+    );
 
     await this.writeNewContents(newFileContents);
   }
 
   private loadConfig(customConfigPath?: string): any {
     try {
-      const configPath = customConfigPath || path.join(process.cwd(), '.contentcrafter', 'config.yml');
+      const configPath =
+        customConfigPath ||
+        path.join(process.cwd(), '.contentcrafter', 'config.yml');
       const configFile = fs.readFileSync(configPath, 'utf8');
       return yaml.load(configFile);
     } catch (error) {
@@ -87,7 +108,9 @@ export class EnhanceCommand extends CommandRunner {
 
   private async enhanceContent(
     fileContents: Record<string, string>,
-    contentAreas: any
+    contentArea: {
+      focus: string;
+    }
   ): Promise<Record<string, string>> {
     const model = new ChatOpenAI({
       modelName: 'gpt-4-1106-preview',
@@ -96,7 +119,9 @@ export class EnhanceCommand extends CommandRunner {
     });
 
     const template = ChatPromptTemplate.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(`Enhance the following content to improve clarity, engagement, and alignment with the specified writing style:`),
+      SystemMessagePromptTemplate.fromTemplate(
+        `Enhance the following content to ${contentArea.focus}:`
+      ),
       HumanMessagePromptTemplate.fromTemplate('{input}'),
     ]);
     const outputParser = new StringOutputParser();
@@ -120,7 +145,9 @@ export class EnhanceCommand extends CommandRunner {
     }, {});
   }
 
-  private async loadFilesContent(filePaths: string[]): Promise<Record<string, string>> {
+  private async loadFilesContent(
+    filePaths: string[]
+  ): Promise<Record<string, string>> {
     const contents: Record<string, string> = {};
     for (const filePath of filePaths) {
       contents[filePath] = await loadTextFile(filePath);
@@ -137,7 +164,9 @@ export class EnhanceCommand extends CommandRunner {
     }).start();
   }
 
-  private async writeNewContents(newFileContents: Record<string, string>): Promise<void> {
+  private async writeNewContents(
+    newFileContents: Record<string, string>
+  ): Promise<void> {
     for (const [filePath, content] of Object.entries(newFileContents)) {
       fs.writeFileSync(filePath, content);
     }
@@ -148,6 +177,14 @@ export class EnhanceCommand extends CommandRunner {
     description: 'Path to a custom ContentCrafter configuration file',
   })
   parseConfig(val: string) {
+    return val;
+  }
+
+  @Option({
+    flags: '--type [type]',
+    description: 'Specify the type of document to enhance',
+  })
+  parseType(val: string) {
     return val;
   }
 }
