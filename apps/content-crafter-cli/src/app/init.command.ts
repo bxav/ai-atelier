@@ -9,16 +9,16 @@ const CONFIG_FILE_NAME = 'config.yml';
 const TEMPLATES_DIR_NAME = 'templates';
 const EXAMPLES_DIR_NAME = 'examples';
 const TEMPLATE_EXAMPLE_URL =
-  'https://raw.githubusercontent.com/bxav/content-crafter/main/templates';
+  'https://raw.githubusercontent.com/bxav/ai-atelier/main/apps/content-crafter-cli/examples';
 
 const CONFIG_CONTENT_TEMPLATE = `contentAreas:
   {{contentType}}:
     pattern: {{filePattern}}
-    focus: {{contentFocus}}
+    voiceAndEthos: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/voice-and-ethos.md
 #    templates:
-#      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/templates/template.md
+#      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/template.md
 #    examples:
-#      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/examples/example.md`;
+#      - path: ./example.md`;
 
 @Command({
   name: 'init',
@@ -33,10 +33,11 @@ export class InitCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    const { contentType, contentFocus, contentFilePattern } =
+    const { contentType, contentVoice, contentEthos, contentFilePattern } =
       await this.inquirer.ask<{
         contentType: string;
-        contentFocus: string;
+        contentVoice: string;
+        contentEthos: string;
         contentFilePattern: string;
       }>('ask-content-area-questions', undefined);
 
@@ -49,16 +50,16 @@ export class InitCommand extends CommandRunner {
     await this.fileManager.ensureDirectory(contentCrafterDir);
 
     const areaDir = path.join(contentCrafterDir, contentType);
-    const templatesDir = path.join(areaDir, TEMPLATES_DIR_NAME);
-    const examplesDir = path.join(areaDir, EXAMPLES_DIR_NAME);
-    await this.fileManager.ensureDirectory(templatesDir);
-    await this.fileManager.ensureDirectory(examplesDir);
+    // const templatesDir = path.join(areaDir, TEMPLATES_DIR_NAME);
+    // const examplesDir = path.join(areaDir, EXAMPLES_DIR_NAME);
+    // await this.fileManager.ensureDirectory(templatesDir);
+    // await this.fileManager.ensureDirectory(examplesDir);
 
-    // await this.fetchAndSaveFile(
-    //   `${TEMPLATE_EXAMPLE_URL}/${contentArea}/template.md`,
-    //   templatesDir,
-    //   'template.md'
-    // );
+    await this.fetchAndSaveFile(
+      `${TEMPLATE_EXAMPLE_URL}/${contentType}/voice-and-ethos.md`,
+      areaDir,
+      'voice-and-ethos.md'
+    );
 
     // await this.fetchAndSaveFile(
     //   `${TEMPLATE_EXAMPLE_URL}/${contentArea}/example.md`,
@@ -69,7 +70,8 @@ export class InitCommand extends CommandRunner {
     const configPath = path.join(contentCrafterDir, CONFIG_FILE_NAME);
     const configContent = this.generateConfigContent(
       contentType,
-      contentFocus,
+      contentVoice,
+      contentEthos,
       contentFilePattern
     );
     await fs.writeFile(configPath, configContent);
@@ -93,11 +95,13 @@ export class InitCommand extends CommandRunner {
 
   private generateConfigContent(
     contentType: string,
-    contentFocus: string,
+    contentVoice: string,
+    contentEthos: string,
     contentFilePattern: string
   ): string {
     return CONFIG_CONTENT_TEMPLATE.replace(/{{contentType}}/g, contentType)
-      .replace('{{contentFocus}}', contentFocus)
+      .replace('{{contentVoice}}', contentVoice)
+      .replace('{{contentEthos}}', contentEthos)
       .replace('{{filePattern}}', contentFilePattern);
   }
 }

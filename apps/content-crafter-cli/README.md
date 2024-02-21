@@ -1,18 +1,18 @@
 # ContentCrafter
 
-ContentCrafter is an innovative Command Line Interface (CLI) tool designed to transform codebases into captivating narratives and educational resources. By leveraging insights from your code, ContentCrafter facilitates the creation of technical documents, blog posts, video scripts, and presentations, enabling developers to share their knowledge and insights effectively.
+ContentCrafter is a pioneering Command Line Interface (CLI) tool designed to transform codebases into engaging narratives and educational resources. It empowers developers to articulate their expertise with clarity, igniting the spark of innovation in their audience.
 
 ## Features
 
-- **Intelligent Content Analysis:** Scans your codebase to identify opportunities for content creation, focusing on areas of complexity, comprehensive documentation, and innovative solutions.
-- **Diverse Content Suggestions:** Offers content format suggestions tailored to your code's story, including technical documentation, in-depth blog posts, engaging video scripts, and informative presentations.
-- **Customizable Writing Styles:** Configures writing styles for different content types, ensuring consistency in tone, formality, and audience engagement.
-- **Content Enhancement:** The `enhance` command rewrites existing content files, improving clarity, engagement, and adherence to specified writing styles.
-- **Seamless Integration:** Designed to integrate effortlessly with your existing workflow, requiring minimal setup.
+- **Intelligent Content Analysis:** Scans your codebase to pinpoint opportunities for content creation, emphasizing areas ripe for storytelling and practical tutorials.
+- **Diverse Content Suggestions:** Provides suggestions for content formats such as technical documentation, in-depth blog posts, engaging video scripts, and informative presentations, tailored to convey complex concepts with simplicity.
+- **Customizable Voice and Ethos:** Enables fine-tuning of content's voice and ethos settings, ensuring alignment with a style of clear, concise, and innovative communication.
+- **Content Enhancement:** Utilizes the `enhance` command to refine existing content, enhancing clarity, engagement, and adherence to the configured voice and ethos.
+- **Templates and Examples Configuration:** Offers the ability to configure templates and examples for various content types, facilitating consistency and ease in content creation.
 
 ## Installation
 
-Install ContentCrafter globally via npm to use it across your projects:
+Install ContentCrafter globally via npm to bring an insightful approach to your projects:
 
 ```bash
 npm install -g @bxav/content-crafter
@@ -20,61 +20,51 @@ npm install -g @bxav/content-crafter
 
 ## Getting Started
 
-1. **Initialization:** Set up ContentCrafter in your project by running the `init` command. This creates a `.contentcrafter` directory in your project root, containing a `config.yml` for configuration and an `examples` directory.
+1. **Initialization:** Begin your journey with ContentCrafter by initializing it in your project. This sets up a `.contentcrafter` directory with a `config.yml` for configurations and directories for templates and examples.
 
-    ```bash
-    content-crafter init
-    ```
+   ```bash
+   content-crafter init
+   ```
 
-2. **Configuration:** Customize ContentCrafter to your project's needs by editing the `config.yml` file within the `.contentcrafter` directory, specifying content areas, writing styles, and examples.
+2. **Configuration:** Tailor ContentCrafter to your project's needs by editing the `config.yml`. Define content areas, voice, ethos, and paths to templates and examples that reflect a unique approach.
 
-3. **Content Analysis:** Use the `analyze` command to identify content creation opportunities within your codebase.
+3. **Content Analysis:** Discover areas where a mix of storytelling and hands-on tutorials can illuminate your codebase with the `analyze` command.
 
-    ```bash
-    content-crafter analyze
-    ```
+   ```bash
+   content-crafter analyze
+   ```
 
-4. **Content Enhancement:** Improve existing content for better clarity and engagement with the `enhance` command.
+4. **Content Creation:** Start creating new content using the predefined templates, ensuring consistency and ease of creation.
 
-    ```bash
-    content-crafter enhance ./path/to/content.md
-    ```
+   ```bash
+   content-crafter create readme "My New Blog Post"
+   ```
 
-## Commands
+5. **Content Enhancement:** Elevate your existing content with the `enhance` command, making it resonate with a style of making complex concepts accessible.
 
-- **`init`**: Initializes ContentCrafter in your project, setting up necessary configurations.
-- **`analyze`**: Analyzes your codebase to suggest content creation opportunities.
-- **`enhance`**: Rewrites specified content files to improve quality and align with writing styles.
+   ```bash
+   content-crafter enhance ./path/to/content.md
+   ```
 
-## Configuring Writing Styles
+## Configuring Content Areas
 
-Define your preferred writing styles for each content type in the `config.yml` file to ensure consistency across your content:
+Define content areas in the `config.yml` file, specifying patterns, voice, ethos, and paths to templates and examples:
 
 ```yaml
 contentAreas:
-  blogPosts:
-    pattern: .md, *.docx
-    focus: Engaging Narrative
-    writingStyle:
-      tone: conversational
-      formality: casual
-      audience: general public
-    templates:
-      - path: ./.contentcrafter/templates/blog-post-template.md
-```
-
-## Enhancing Content
-
-Use the `enhance` command to refine content, applying improvements for readability, SEO, and adherence to your configured writing styles:
-
-```bash
-content-crafter enhance ./content/blog/my-article.md
+  readme:
+    pattern: '.md, .mdx'    
+    voiceAndEthos: ./.contentcrafter/readme/voice-and-ethos.md
+    # templates:
+    #   - path: ./templates/readme-template.md
+    # examples:
+    #   - path: ./examples/blog-post-example.md
 ```
 
 ## Contributing
 
-Contributions are welcome! If you're interested in adding features, enhancing functionality, or fixing bugs, please review our contribution guidelines.
+Contributions to ContentCrafter are welcome! Whether it's adding new features, enhancing functionality, or fixing bugs, your input helps foster a community of developers passionate about sharing knowledge in an engaging, accessible manner.
 
 ## License
 
-ContentCrafter is [MIT licensed](LICENSE).
+ContentCrafter is [MIT licensed](LICENSE.md), promoting open collaboration and innovation.

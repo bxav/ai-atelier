@@ -1,8 +1,8 @@
 contentAreas:
-  docs:
+  readme:
     pattern: .md
-    focus: Technical documentation, API references
+    voiceAndEthos: ./.contentcrafter/readme/voice-and-ethos.md
 #    templates:
-#      - path: ./.contentcrafter/docs/templates/template.md
+#      - path: ./.contentcrafter/docs/template.md
 #    examples:
-#      - path: ./.contentcrafter/docs/examples/example.md
+#      - path: ./example.md

@@ -61,6 +61,8 @@ export class EnhanceCommand extends CommandRunner {
       `Enhancing content for ${contentType} with focus on ${contentArea.focus}...`
     );
 
+    const voiceAndEthos = await loadTextFile(contentArea.voiceAndEthos);
+
     let filePaths = params;
     if (!filePaths.length) {
       console.error('No files specified for enhancement.');
@@ -87,7 +89,7 @@ export class EnhanceCommand extends CommandRunner {
 
     const newFileContents = await this.enhanceContent(
       fileContents,
-      contentArea
+      voiceAndEthos
     );
 
     await this.writeNewContents(newFileContents);
@@ -108,9 +110,7 @@ export class EnhanceCommand extends CommandRunner {
 
   private async enhanceContent(
     fileContents: Record<string, string>,
-    contentArea: {
-      focus: string;
-    }
+    voiceAndEthos: string
   ): Promise<Record<string, string>> {
     const model = new ChatOpenAI({
       modelName: 'gpt-4-1106-preview',
@@ -118,9 +118,15 @@ export class EnhanceCommand extends CommandRunner {
       openAIApiKey: process.env.OPENAI_API_KEY,
     });
 
+    console.log('Enhancing content...', voiceAndEthos);
+
     const template = ChatPromptTemplate.fromMessages([
       SystemMessagePromptTemplate.fromTemplate(
-        `Enhance the following content to ${contentArea.focus}:`
+        `Based on the a given voice and ethos:
+        ${voiceAndEthos}
+
+        Enter the content you want to enhance:
+        `
       ),
       HumanMessagePromptTemplate.fromTemplate('{input}'),
     ]);
