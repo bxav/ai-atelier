@@ -1,45 +1,32 @@
 import * as fs from 'fs';
-import * as path from 'path';
-import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
-import {
-  Command,
-  CommandRunner,
-  InquirerService,
-  Option,
-} from 'nest-commander';
+import { Command, CommandRunner, Option } from 'nest-commander';
+import { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
-import * as yaml from 'js-yaml';
+
 import {
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
 } from '@langchain/core/prompts';
 
-const loading = require('loading-cli');
-
-import { getChangedFiles, loadConfig, loadTextFile } from '@bxav/cli-utils';
-
-function getFilesRecursively(directory: string): string[] {
-  let results: string[] = [];
-
-  const list = fs.readdirSync(directory);
-  list.forEach((file) => {
-    file = path.join(directory, file);
-    const stat = fs.statSync(file);
-    if (stat && stat.isDirectory()) {
-      /* Recurse into a subdirectory */
-      results = results.concat(getFilesRecursively(file));
-    } else {
-      results.push(file);
-    }
-  });
-  return results;
-}
+import {
+  FileManagerService,
+  LoaderService,
+  ModelBuilderService,
+  getChangedFiles,
+  loadTextFile,
+} from '@bxav/cli-utils';
+import { ConfigService } from './config.service';
 
 @Command({ name: 'smart-corrector', description: 'Smart corrector' })
 export class SmartCorrectorCommand extends CommandRunner {
-  constructor(private readonly inquirer: InquirerService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly modelBuilderService: ModelBuilderService,
+    private readonly fileManager: FileManagerService,
+    private loaderService: LoaderService
+  ) {
     super();
   }
 
@@ -53,7 +40,7 @@ export class SmartCorrectorCommand extends CommandRunner {
       expert: string;
     }
   ): Promise<void> {
-    const config = this.loadConfig(options.config);
+    const config = await this.configService.loadConfig(options.config);
     if (!config) {
       console.error('Failed to load configuration.');
       return;
@@ -76,25 +63,27 @@ export class SmartCorrectorCommand extends CommandRunner {
       `Processing files with '${expertName}' expert configurations...`
     );
 
-    const codingStyles = this.loadCodingStyles(expertConfig);
-    const examples = this.loadExamples(expertConfig);
+    const prompt = this.configService.loadPrompt();
 
-    const [prompt] = await Promise.all([this.loadAsset('expert-prompt.md')]);
+    const codingStyles = await this.configService.loadCodingStyles(
+      expertConfig
+    );
+    const examples = await this.configService.loadExamples(expertConfig);
 
     let filePaths = _params;
     if (!filePaths.length) {
       filePaths = await getChangedFiles(options.commitDiff || undefined);
     } else {
-      // Modify this part
-      let allFiles: string[] = [];
-      filePaths.forEach((path) => {
+      const allFilesPromises = filePaths.map(async (path) => {
         if (fs.statSync(path).isDirectory()) {
-          allFiles = allFiles.concat(getFilesRecursively(path));
+          return this.fileManager.getFilesRecursively(path);
         } else {
-          allFiles.push(path);
+          return [path];
         }
       });
-      filePaths = allFiles;
+
+      const allFilesArrays = await Promise.all(allFilesPromises);
+      filePaths = allFilesArrays.flat();
     }
 
     filePaths = filePaths.filter((filePath) =>
@@ -105,7 +94,18 @@ export class SmartCorrectorCommand extends CommandRunner {
 
     const fileContents = await this.loadFilesContent(filePaths);
 
-    const newFileContents = await this.refactorFiles(fileContents, {
+
+    const model = await this.modelBuilderService.buildModel(
+      'OpenAI',
+      'gpt-4-1106-preview',
+      {
+        temperature: 0,
+      }
+    );
+
+    const load = this.loaderService.createLoader({ text: 'Refactoring...' });
+
+    const newFileContents = await this.refactorFiles(model, fileContents, {
       prompt,
       role: expertConfig.role,
       codingStyles: codingStyles.join('\n'),
@@ -113,60 +113,12 @@ export class SmartCorrectorCommand extends CommandRunner {
     });
 
     await this.writeNewContents(newFileContents);
-  }
 
-  private loadConfig(customConfigPath?: string): any {
-    try {
-      const configPath =
-        customConfigPath ||
-        path.join(process.cwd(), '.codeartisan', 'config.yml');
-      const configFile = fs.readFileSync(configPath, 'utf8');
-      return yaml.load(configFile);
-    } catch (error) {
-      console.error('Error loading config file:', error);
-      return null;
-    }
-  }
-
-  private loadExamples(expertConfig: any): string[] {
-    let examples: string[] = [];
-    if (expertConfig.examples && expertConfig.examples.length > 0) {
-      expertConfig.examples.forEach((examplePath: { path: string }) => {
-        const fullPath = path.join(process.cwd(), examplePath.path);
-        if (fs.existsSync(fullPath)) {
-          // Read the content of the example file
-          const content = fs.readFileSync(fullPath, 'utf8');
-          examples.push(content);
-        } else {
-          console.error(`Coding example not found: ${fullPath}`);
-        }
-      });
-    } else {
-      console.log('No examples configured for this expert.');
-    }
-    return examples;
-  }
-
-  private loadCodingStyles(expertConfig: any): string[] {
-    let codingStyles: string[] = [];
-    if (expertConfig.codingStyles && expertConfig.codingStyles.length > 0) {
-      expertConfig.codingStyles.forEach((stylePath: { path: string }) => {
-        const fullPath = path.join(process.cwd(), stylePath.path);
-        if (fs.existsSync(fullPath)) {
-          // Read the content of the coding style file
-          const content = fs.readFileSync(fullPath, 'utf8');
-          codingStyles.push(content);
-        } else {
-          console.error(`Coding style file not found: ${fullPath}`);
-        }
-      });
-    } else {
-      console.log('No coding styles configured for this expert.');
-    }
-    return codingStyles;
+    load.stop();
   }
 
   private async refactorFiles(
+    model: BaseChatModel,
     fileContents: Record<string, string>,
     {
       prompt,
@@ -175,13 +127,6 @@ export class SmartCorrectorCommand extends CommandRunner {
       examples,
     }: { prompt: string; role: string; codingStyles: string; examples: string }
   ): Promise<Record<string, string>> {
-    const model = new ChatOpenAI({
-      modelName: 'gpt-4-1106-preview',
-      temperature: 0,
-      openAIApiKey:
-        process.env.OPENAI_API_KEY || (await this.promptForOpenaiKey()),
-    });
-
     const template = ChatPromptTemplate.fromMessages([
       SystemMessagePromptTemplate.fromTemplate(prompt),
       HumanMessagePromptTemplate.fromTemplate(
@@ -191,8 +136,6 @@ export class SmartCorrectorCommand extends CommandRunner {
     ]);
     const outputParser = new StringOutputParser();
     const chain = RunnableSequence.from([template, model, outputParser]);
-
-    const load = this.startLoadingAnimation();
 
     const newFileContents = await chain.batch(
       Object.entries(fileContents).map(([filePath, content]) => ({
@@ -206,7 +149,6 @@ export class SmartCorrectorCommand extends CommandRunner {
       }
     );
 
-    load.stop();
     return Object.keys(fileContents).reduce((acc, filePath, index) => {
       acc[filePath] = newFileContents[index];
       return acc;
@@ -221,86 +163,6 @@ export class SmartCorrectorCommand extends CommandRunner {
       contents[filePath] = await loadTextFile(filePath);
     }
     return contents;
-  }
-
-  private async loadAsset(
-    fileName: string,
-    overridePath?: string
-  ): Promise<string> {
-    return loadConfig(overridePath ?? path.join(__dirname, 'assets', fileName));
-  }
-
-  private startLoadingAnimation() {
-    return loading({
-      text: 'Refactoring...',
-      color: 'yellow',
-      interval: 80,
-      stream: process.stdout,
-      frames: [
-        '▐⠂               ▌',
-        '▐⠈               ▌',
-        '▐ ⠂              ▌',
-        '▐ ⠠              ▌',
-        '▐  ⡀             ▌',
-        '▐  ⠠             ▌',
-        '▐   ⠂            ▌',
-        '▐   ⠈            ▌',
-        '▐    ⠂           ▌',
-        '▐    ⠠           ▌',
-        '▐     ⡀          ▌',
-        '▐     ⠠          ▌',
-        '▐      ⠂         ▌',
-        '▐      ⠈         ▌',
-        '▐       ⠂        ▌',
-        '▐       ⠠        ▌',
-        '▐        ⡀       ▌',
-        '▐        ⠠       ▌',
-        '▐         ⠂      ▌',
-        '▐         ⠈      ▌',
-        '▐          ⠂     ▌',
-        '▐          ⠠     ▌',
-        '▐           ⡀    ▌',
-        '▐           ⠠    ▌',
-        '▐            ⠂   ▌',
-        '▐            ⠈   ▌',
-        '▐             ⠂  ▌',
-        '▐             ⠠  ▌',
-        '▐              ⡀ ▌',
-        '▐              ⠠ ▌',
-        '▐               ⠂▌',
-        '▐               ⠈▌',
-        '▐              ⠠ ▌',
-        '▐              ⡀ ▌',
-        '▐             ⠠  ▌',
-        '▐             ⠂  ▌',
-        '▐            ⠈   ▌',
-        '▐            ⠂   ▌',
-        '▐           ⠠    ▌',
-        '▐           ⡀    ▌',
-        '▐          ⠠     ▌',
-        '▐          ⠂     ▌',
-        '▐         ⠈      ▌',
-        '▐         ⠂      ▌',
-        '▐        ⠠       ▌',
-        '▐        ⡀       ▌',
-        '▐       ⠠        ▌',
-        '▐       ⠂        ▌',
-        '▐      ⠈         ▌',
-        '▐      ⠂         ▌',
-        '▐     ⠠          ▌',
-        '▐     ⡀          ▌',
-        '▐    ⠠           ▌',
-        '▐    ⠂           ▌',
-        '▐   ⠈            ▌',
-        '▐   ⠂            ▌',
-        '▐  ⠠             ▌',
-        '▐  ⡀             ▌',
-        '▐ ⠠              ▌',
-        '▐ ⠂              ▌',
-        '▐⠈               ▌',
-        '▐⠂               ▌',
-      ],
-    }).start();
   }
 
   private async writeNewContents(
@@ -336,13 +198,5 @@ export class SmartCorrectorCommand extends CommandRunner {
   })
   parseExpert(val: string) {
     return val;
-  }
-
-  async promptForOpenaiKey(): Promise<string> {
-    const { openaiKey } = await this.inquirer.ask<{ openaiKey: string }>(
-      'ask-openai-key-questions',
-      undefined
-    );
-    return openaiKey;
   }
 }

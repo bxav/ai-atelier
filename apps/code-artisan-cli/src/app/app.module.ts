@@ -4,17 +4,16 @@ import { Module } from '@nestjs/common';
 import { SmartCorrectorCommand } from './smart-corrector.command';
 import { InitCommand } from './init.command';
 
-import { AskOpenaiKeyQuestions } from './questions/ask-openai-key.questions';
 import { AskBuildExpertQuestions } from './questions/build-expert.questions';
-import { FileManagerService } from '@bxav/cli-utils';
+import { CliUtilsModule } from '@bxav/cli-utils';
+import { ConfigService } from './config.service';
 
 @Module({
-  imports: [ConfigModule.forRoot()],
+  imports: [ConfigModule.forRoot(), CliUtilsModule],
   providers: [
+    ConfigService,
     SmartCorrectorCommand,
     InitCommand,
-    FileManagerService,
-    AskOpenaiKeyQuestions,
     AskBuildExpertQuestions,
   ],
 })

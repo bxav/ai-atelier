@@ -50,6 +50,7 @@ export class InitCommand extends CommandRunner {
     await this.fileManager.ensureDirectory(contentCrafterDir);
 
     const areaDir = path.join(contentCrafterDir, contentType);
+    await this.fileManager.ensureDirectory(areaDir);
     // const templatesDir = path.join(areaDir, TEMPLATES_DIR_NAME);
     // const examplesDir = path.join(areaDir, EXAMPLES_DIR_NAME);
     // await this.fileManager.ensureDirectory(templatesDir);

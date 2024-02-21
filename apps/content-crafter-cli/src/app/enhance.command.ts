@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { Command, CommandRunner, Option } from 'nest-commander';
 import { RunnableSequence } from '@langchain/core/runnables';
@@ -12,9 +11,11 @@ import {
   SystemMessagePromptTemplate,
 } from '@langchain/core/prompts';
 
-const loading = require('loading-cli');
-
-import { loadConfig, loadTextFile } from '@bxav/cli-utils';
+import {
+  LoaderService,
+  ModelBuilderService,
+  loadTextFile,
+} from '@bxav/cli-utils';
 
 function getFilesRecursively(directory: string): string[] {
   let results: string[] = [];
@@ -33,6 +34,13 @@ function getFilesRecursively(directory: string): string[] {
 
 @Command({ name: 'enhance', description: 'Enhance content quality' })
 export class EnhanceCommand extends CommandRunner {
+  constructor(
+    private readonly modelBuilderService: ModelBuilderService,
+    private readonly loaderService: LoaderService
+  ) {
+    super();
+  }
+
   async run(
     params: string[],
     options: { config: string; type: string }
@@ -112,11 +120,13 @@ export class EnhanceCommand extends CommandRunner {
     fileContents: Record<string, string>,
     voiceAndEthos: string
   ): Promise<Record<string, string>> {
-    const model = new ChatOpenAI({
-      modelName: 'gpt-4-1106-preview',
-      temperature: 0.7,
-      openAIApiKey: process.env.OPENAI_API_KEY,
-    });
+    const model = await this.modelBuilderService.buildModel(
+      'OpenAI',
+      'gpt-4-1106-preview',
+      {
+        temperature: 0.7,
+      }
+    );
 
     console.log('Enhancing content...', voiceAndEthos);
 
@@ -133,7 +143,9 @@ export class EnhanceCommand extends CommandRunner {
     const outputParser = new StringOutputParser();
     const chain = RunnableSequence.from([template, model, outputParser]);
 
-    const load = this.startLoadingAnimation();
+    const load = this.loaderService.createLoader({
+      text: 'Enhancing content...',
+    });
 
     const newFileContents = await chain.batch(
       Object.entries(fileContents).map(([filePath, content]) => ({
@@ -159,15 +171,6 @@ export class EnhanceCommand extends CommandRunner {
       contents[filePath] = await loadTextFile(filePath);
     }
     return contents;
-  }
-
-  private startLoadingAnimation() {
-    return loading({
-      text: 'Enhancing content...',
-      color: 'green',
-      interval: 80,
-      stream: process.stdout,
-    }).start();
   }
 
   private async writeNewContents(

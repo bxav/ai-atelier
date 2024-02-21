@@ -3,8 +3,6 @@ import * as path from 'path';
 import { Command, CommandRunner, Option } from 'nest-commander';
 import * as yaml from 'js-yaml';
 
-const loading = require('loading-cli');
-
 function getFilesRecursively(directory: string): string[] {
   let results: string[] = [];
   const list = fs.readdirSync(directory);
