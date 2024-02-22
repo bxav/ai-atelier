@@ -1,7 +1,7 @@
 {
   "name": "@bxav/content-crafter",
   "author": "Xavier Buillit <x@bxav.net",
-  "description": "An AI-driven CLI tool for code refactoring across various programming languages.",
+  "description": "A pioneering CLI tool transforming codebases into engaging narratives and educational resources, crafted for developers to share their expertise.",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bxav/ai-atelier/issues"
@@ -12,11 +12,11 @@
   },
   "homepage": "https://github.com/bxav/ai-atelier/tree/main/apps/content-crafter-cli#readme",
   "keywords": [
-    "code-refactoring",
+    "content-creation",
     "CLI",
-    "AI-driven",
-    "programming",
-    "development-tools"
+    "educational-resources",
+    "developer-tools",
+    "narrative-coding"
   ],
   "bin": {
     "content-crafter": "main.js"

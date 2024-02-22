@@ -2,6 +2,9 @@ contentAreas:
   readme:
     pattern: .md
     voiceAndEthos: ./.contentcrafter/readme/voice-and-ethos.md
+  blog:
+    pattern: .md
+    voiceAndEthos: ./.contentcrafter/blog/voice-and-ethos.md
 #    templates:
 #      - path: ./.contentcrafter/docs/template.md
 #    examples:

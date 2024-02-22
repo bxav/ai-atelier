@@ -6,12 +6,12 @@ import { InitCommand } from './init.command';
 
 import { AskBuildExpertQuestions } from './questions/build-expert.questions';
 import { CliUtilsModule } from '@bxav/cli-utils';
-import { ConfigService } from './config.service';
+import { CliConfigService } from './cli-config.service';
 
 @Module({
   imports: [ConfigModule.forRoot(), CliUtilsModule],
   providers: [
-    ConfigService,
+    CliConfigService,
     SmartCorrectorCommand,
     InitCommand,
     AskBuildExpertQuestions,

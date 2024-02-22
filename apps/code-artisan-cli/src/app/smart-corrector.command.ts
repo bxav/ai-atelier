@@ -17,12 +17,12 @@ import {
   getChangedFiles,
   loadTextFile,
 } from '@bxav/cli-utils';
-import { ConfigService } from './config.service';
+import { CliConfigService } from './cli-config.service';
 
 @Command({ name: 'smart-corrector', description: 'Smart corrector' })
 export class SmartCorrectorCommand extends CommandRunner {
   constructor(
-    private readonly configService: ConfigService,
+    private readonly configService: CliConfigService,
     private readonly modelBuilderService: ModelBuilderService,
     private readonly fileManager: FileManagerService,
     private loaderService: LoaderService
@@ -42,7 +42,9 @@ export class SmartCorrectorCommand extends CommandRunner {
   ): Promise<void> {
     const config = await this.configService.loadConfig(options.config);
     if (!config) {
-      console.error('Failed to load configuration.');
+      console.warn(
+        'Failed to load configuration.\nPlease run `code-artisan init` to initialize CodeArtisan.'
+      );
       return;
     }
 
@@ -74,16 +76,7 @@ export class SmartCorrectorCommand extends CommandRunner {
     if (!filePaths.length) {
       filePaths = await getChangedFiles(options.commitDiff || undefined);
     } else {
-      const allFilesPromises = filePaths.map(async (path) => {
-        if (fs.statSync(path).isDirectory()) {
-          return this.fileManager.getFilesRecursively(path);
-        } else {
-          return [path];
-        }
-      });
-
-      const allFilesArrays = await Promise.all(allFilesPromises);
-      filePaths = allFilesArrays.flat();
+      filePaths = await this.fileManager.getFiles(filePaths);
     }
 
     filePaths = filePaths.filter((filePath) =>
@@ -93,7 +86,6 @@ export class SmartCorrectorCommand extends CommandRunner {
     );
 
     const fileContents = await this.loadFilesContent(filePaths);
-
 
     const model = await this.modelBuilderService.buildModel(
       'OpenAI',

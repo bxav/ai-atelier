@@ -35,4 +35,18 @@ export class FileManagerService {
 
     return (await Promise.all(results)).flat();
   }
+  
+  async getFiles(filePaths: string[]): Promise<string[]> {
+    const allFilesPromises = filePaths.map(async (path) => {
+      if (statSync(path).isDirectory()) {
+        return this.getFilesRecursively(path);
+      } else {
+        return [path];
+      }
+    });
+
+    const allFilesArrays = await Promise.all(allFilesPromises);
+    filePaths = allFilesArrays.flat();
+    return filePaths;
+  }
 }

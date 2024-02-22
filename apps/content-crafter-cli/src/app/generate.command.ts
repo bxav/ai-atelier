@@ -7,18 +7,20 @@ import { StringOutputParser } from '@langchain/core/output_parsers';
 import {
   HumanMessagePromptTemplate,
   SystemMessagePromptTemplate,
+  AIMessagePromptTemplate,
 } from '@langchain/core/prompts';
 
 import {
   FileManagerService,
   LoaderService,
   ModelBuilderService,
+  getChangedFiles,
   loadTextFile,
 } from '@bxav/cli-utils';
 import { CliConfigService } from './cli-config.service';
 
-@Command({ name: 'enhance', description: 'Enhance content quality' })
-export class EnhanceCommand extends CommandRunner {
+@Command({ name: 'generate', description: 'Generate new content' })
+export class GenerateCommand extends CommandRunner {
   constructor(
     private readonly modelBuilderService: ModelBuilderService,
     private readonly configService: CliConfigService,
@@ -30,7 +32,13 @@ export class EnhanceCommand extends CommandRunner {
 
   async run(
     params: string[],
-    options: { config: string; type: string }
+    options: {
+      config: string;
+      type: string;
+      objective: string;
+      output: string;
+      commitDiff: string;
+    }
   ): Promise<void> {
     const config = await this.configService.loadConfig(options.config);
     if (!config) {
@@ -55,39 +63,36 @@ export class EnhanceCommand extends CommandRunner {
     }
 
     console.log(
-      `Enhancing content for ${contentType} with focus on ${contentArea.focus}...`
+      `Generating content for ${contentType} with focus on ${contentArea.focus}...`
     );
 
     const voiceAndEthos = await loadTextFile(contentArea.voiceAndEthos);
 
     let filePaths = params;
     if (!filePaths.length) {
-      console.error('No files specified for enhancement.');
+      filePaths = await getChangedFiles(options.commitDiff || undefined);
       return;
     } else {
       filePaths = await this.fileManager.getFiles(filePaths);
     }
 
-    filePaths = filePaths.filter((filePath) =>
-      (contentArea.pattern as string)
-        .split(',')
-        .some((p) => filePath.endsWith(p.trim()))
-    );
-
     const fileContents = await this.loadFilesContent(filePaths);
 
-    const newFileContents = await this.enhanceContent(
+    const content = await this.generateContent(
       fileContents,
+      options.objective,
       voiceAndEthos
     );
 
-    await this.writeNewContents(newFileContents);
+    console.log('New content:\n', content);
+    fs.writeFileSync(options.output, content);
   }
 
-  private async enhanceContent(
+  private async generateContent(
     fileContents: Record<string, string>,
+    objective: string,
     voiceAndEthos: string
-  ): Promise<Record<string, string>> {
+  ): Promise<string> {
     const model = await this.modelBuilderService.buildModel(
       'OpenAI',
       'gpt-4-1106-preview',
@@ -96,39 +101,37 @@ export class EnhanceCommand extends CommandRunner {
       }
     );
 
-    console.log('Enhancing content...', voiceAndEthos);
+    console.log('Generate content...');
 
     const template = ChatPromptTemplate.fromMessages([
       SystemMessagePromptTemplate.fromTemplate(
         `Based on the a given voice and ethos:
         ${voiceAndEthos}
 
-        Enter the content you want to enhance:
+        Give me the content you want me to consider:
         `
       ),
-      HumanMessagePromptTemplate.fromTemplate('{input}'),
+      HumanMessagePromptTemplate.fromTemplate('{content}'),
+      AIMessagePromptTemplate.fromTemplate(
+        'I will give you direclty the content you want me to consider in the next message. But first what is the objective of the content you want me to generate?'
+      ),
+      HumanMessagePromptTemplate.fromTemplate('{objective}'),
     ]);
     const outputParser = new StringOutputParser();
     const chain = RunnableSequence.from([template, model, outputParser]);
 
     const load = this.loaderService.createLoader({
-      text: 'Enhancing content...',
+      text: 'Generate content...',
     });
 
-    const newFileContents = await chain.batch(
-      Object.entries(fileContents).map(([filePath, content]) => ({
-        input: content,
-      })),
-      {
-        maxConcurrency: 5,
-      }
-    );
+    const newContent = await chain.invoke({
+      content: Object.entries(fileContents).map(([filePath, content]) => `${filePath}:\n\`\`\`\n${content}\n\`\`\``).join('\n\n'),
+      objective,
+    });
 
     load.stop();
-    return Object.keys(fileContents).reduce((acc, filePath, index) => {
-      acc[filePath] = newFileContents[index];
-      return acc;
-    }, {});
+
+    return newContent;
   }
 
   private async loadFilesContent(
@@ -139,14 +142,6 @@ export class EnhanceCommand extends CommandRunner {
       contents[filePath] = await loadTextFile(filePath);
     }
     return contents;
-  }
-
-  private async writeNewContents(
-    newFileContents: Record<string, string>
-  ): Promise<void> {
-    for (const [filePath, content] of Object.entries(newFileContents)) {
-      fs.writeFileSync(filePath, content);
-    }
   }
 
   @Option({
@@ -162,6 +157,30 @@ export class EnhanceCommand extends CommandRunner {
     description: 'Specify the type of document to enhance',
   })
   parseType(val: string) {
+    return val;
+  }
+
+  @Option({
+    flags: '--objective [objective]',
+    description: 'Specify the type of document to enhance',
+  })
+  parseObjective(val: string) {
+    return val;
+  }
+
+  @Option({
+    flags: '-o, --output [path]',
+    description: 'Path to the output file',
+  })
+  parseOutput(val: string) {
+    return val;
+  }
+
+  @Option({
+    flags: '-c, --commit-diff [commitDiff]',
+    description: 'The commit diff to use for the refactor',
+  })
+  parseCommitDiff(val: string) {
     return val;
   }
 }

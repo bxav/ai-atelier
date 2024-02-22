@@ -37,7 +37,7 @@ npm install -g @bxav/content-crafter
 4. **Content Creation:** Start creating new content using the predefined templates, ensuring consistency and ease of creation.
 
    ```bash
-   content-crafter create readme "My New Blog Post"
+   content-crafter generate --objective "Build a blog post about creating CLIs, you can use the code given as example" apps/code-artisan-cli/src packages/cli-utils/src --type blog -o blog.md
    ```
 
 5. **Content Enhancement:** Elevate your existing content with the `enhance` command, making it resonate with a style of making complex concepts accessible.

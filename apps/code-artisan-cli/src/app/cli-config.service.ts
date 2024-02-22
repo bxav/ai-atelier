@@ -10,7 +10,7 @@ interface Example {
 }
 
 @Injectable()
-export class ConfigService {
+export class CliConfigService {
   constructor() {}
 
   async loadConfig(customConfigPath?: string): Promise<any> {
@@ -21,8 +21,7 @@ export class ConfigService {
       const configFile = await fs.readFile(configPath, 'utf8');
       return yaml.load(configFile);
     } catch (error) {
-      console.error('Error loading config file:', error);
-      throw error;
+      return null;
     }
   }
 
