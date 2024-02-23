@@ -26,7 +26,7 @@ export class SmartCorrectorCommand extends CommandRunner {
     private readonly configService: CliConfigService,
     private readonly modelBuilderService: ModelBuilderService,
     private readonly fileManager: FileManagerService,
-    private loaderService: LoaderService
+    private readonly loaderService: LoaderService
   ) {
     super();
   }
@@ -48,6 +48,11 @@ export class SmartCorrectorCommand extends CommandRunner {
       );
       return;
     }
+
+    if (!this.configService.validate(config)) {
+      console.error('Fix your configuration file.');
+      return;
+    };
 
     if (Object.keys(config.experts).length === 0) {
       console.error('No experts configured.');

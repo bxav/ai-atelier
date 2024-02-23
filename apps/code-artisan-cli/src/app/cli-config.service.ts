@@ -4,6 +4,45 @@ import * as yaml from 'js-yaml';
 
 import { loadConfig, loadTextFile } from '@bxav/cli-utils';
 import { Injectable } from '@nestjs/common';
+import { z } from 'zod';
+
+const modelSchema = z.object({
+  type: z.string(),
+  name: z.string(),
+  options: z
+    .object({
+      temperature: z.number(),
+    })
+    .optional(),
+});
+
+const expertSchema = z.object({
+  pattern: z.string(),
+  role: z.string(),
+  codingStyles: z
+    .array(
+      z.object({
+        path: z.string(),
+      })
+    )
+    .optional(),
+  examples: z
+    .array(
+      z.object({
+        path: z.string(),
+      })
+    )
+    .optional(),
+});
+
+const expertsSchema = z.record(expertSchema);
+
+const mainSchema = z.object({
+  model: modelSchema.optional(),
+  experts: expertsSchema,
+});
+
+type CliConfig = z.infer<typeof mainSchema>;
 
 interface Example {
   path: string;
@@ -12,6 +51,19 @@ interface Example {
 @Injectable()
 export class CliConfigService {
   constructor() {}
+
+  validate(parsedYaml: unknown): parsedYaml is CliConfig {
+    const result = mainSchema.safeParse(parsedYaml);
+
+    if (result.success === false && result.error instanceof z.ZodError) {
+      console.error('YAML validation failed with the following errors:');
+      result.error.errors.forEach((err) => {
+        console.log(`Path: ${err.path.join('.')}, Message: ${err.message}`);
+      });
+    }
+
+    return result.success;
+  }
 
   async loadConfig(customConfigPath?: string): Promise<any> {
     try {
@@ -25,7 +77,7 @@ export class CliConfigService {
     }
   }
 
-  async loadExamples(expertConfig: any): Promise<string[]> {
+  async loadExamples(expertConfig: z.infer<typeof expertSchema>) {
     if (!expertConfig.examples || expertConfig.examples.length === 0) {
       console.log('No examples configured for this expert.');
       return [];
@@ -40,7 +92,7 @@ export class CliConfigService {
     return examples.filter(Boolean);
   }
 
-  async loadCodingStyles(expertConfig: any): Promise<string[]> {
+  async loadCodingStyles(expertConfig: z.infer<typeof expertSchema>) {
     if (!expertConfig.codingStyles || expertConfig.codingStyles.length === 0) {
       console.log('No coding styles configured for this expert.');
       return [];
@@ -55,7 +107,7 @@ export class CliConfigService {
     return codingStyles.filter(Boolean);
   }
 
-  private async loadFileContent(filePath: string): Promise<string | null> {
+  private async loadFileContent(filePath: string) {
     try {
       return await fs.readFile(filePath, 'utf8');
     } catch (error) {
