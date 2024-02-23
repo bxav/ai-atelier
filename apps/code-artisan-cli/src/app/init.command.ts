@@ -11,7 +11,24 @@ const EXAMPLES_FILE_NAME = 'examples.md';
 const EXAMPLES_DIR_NAME = 'examples';
 const CODING_STYLES_URL =
   'https://raw.githubusercontent.com/bxav/ai-atelier/main/apps/code-artisan-cli/examples';
-const CONFIG_CONTENT_TEMPLATE = `commands:
+const CONFIG_CONTENT_TEMPLATE = `# OpenAI API
+model:
+  type: OpenAI
+  name: gpt-4-1106-preview # gpt-4-1106-preview, ...
+  options:
+    temperature: 0.5
+
+# # Mistral API
+# model:
+#   type: Mistral
+#   name: mistral-small
+
+# # Local LLM
+# model:
+#   type: Ollama
+#   name: mistral # codellama:13b, ...
+
+commands:
 # lint: nx lint
 # test: nx test
 # build: nx build

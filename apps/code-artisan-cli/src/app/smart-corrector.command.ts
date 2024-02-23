@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { Command, CommandRunner, Option } from 'nest-commander';
 import { BaseChatModel } from '@langchain/core/language_models/chat_models';
+import { LLM } from '@langchain/core/language_models/llms';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 
@@ -87,12 +88,18 @@ export class SmartCorrectorCommand extends CommandRunner {
 
     const fileContents = await this.loadFilesContent(filePaths);
 
-    const model = await this.modelBuilderService.buildModel(
-      'OpenAI',
-      'gpt-4-1106-preview',
-      {
+    const modelConfig = config.model || {
+      type: 'OpenAI',
+      name: 'gpt-4-1106-preview',
+      options: {
         temperature: 0,
-      }
+      },
+    };
+
+    const model = await this.modelBuilderService.buildModel(
+      modelConfig.type,
+      modelConfig.name,
+      modelConfig.options
     );
 
     const load = this.loaderService.createLoader({ text: 'Refactoring...' });
@@ -110,7 +117,7 @@ export class SmartCorrectorCommand extends CommandRunner {
   }
 
   private async refactorFiles(
-    model: BaseChatModel,
+    model: BaseChatModel | LLM,
     fileContents: Record<string, string>,
     {
       prompt,

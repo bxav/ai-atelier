@@ -1,5 +1,6 @@
 import { ChatOpenAI } from '@langchain/openai';
 import { ChatMistralAI } from '@langchain/mistralai';
+import { Ollama } from '@langchain/community/llms/ollama';
 import { Injectable } from '@nestjs/common';
 import { InquirerService } from 'nest-commander';
 
@@ -20,6 +21,11 @@ export class ModelBuilderService {
         return new ChatMistralAI({
           apiKey: process.env['MISTRAL_API_KEY'],
           modelName,
+        });
+      case 'Ollama':
+        return new Ollama({
+          baseUrl: process.env['OLLAMA_BASE_URL'] || 'http://localhost:11434',
+          model: modelName,
         });
       default:
         throw new Error(`Unsupported model type: ${modelType}`);
