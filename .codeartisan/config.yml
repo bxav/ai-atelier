@@ -8,7 +8,7 @@ model:
 # # Mistral API
 # model:
 #   type: Mistral
-#   name: mistral-small
+#   name: mistral-large-latest
 
 # # Local LLM
 # model:

@@ -30,7 +30,6 @@ export class TechnicalCopywriterCommand extends CommandRunner {
     passedParam: string[],
     { input }: { input?: string }
   ): Promise<void> {
-    const filePath = passedParam[0] || (await this.promptForPath());
     const objective = input || (await this.promptForObjective());
 
     const llm = new ChatOpenAI({

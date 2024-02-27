@@ -6,7 +6,7 @@ import { Command, CommandRunner, Option } from 'nest-commander';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 
-import { loadConfig } from './utils';
+import { loadConfig } from '../utils';
 
 interface BasicCommandOptions {
   config?: string;

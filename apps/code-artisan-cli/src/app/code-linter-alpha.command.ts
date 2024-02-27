@@ -1,15 +1,6 @@
 import * as fs from 'fs';
-import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import { LLM } from '@langchain/core/language_models/llms';
-import { RunnableSequence } from '@langchain/core/runnables';
-import { StringOutputParser } from '@langchain/core/output_parsers';
 
-import {
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from '@langchain/core/prompts';
 
 import {
   FileManagerService,
@@ -19,13 +10,16 @@ import {
   loadTextFile,
 } from '@bxav/cli-utils';
 import { CliConfigService } from './cli-config.service';
-import { SmartCorrectorService } from './smart-corrector.service';
+import { CodeLinterAgentService } from './code-linter-agent.service';
 
-@Command({ name: 'smart-corrector', description: 'Smart corrector' })
-export class SmartCorrectorCommand extends CommandRunner {
+@Command({
+  name: 'code-linter-alpha',
+  description: 'Code Linter Alpha Command',
+})
+export class CodeLinterAlphaCommand extends CommandRunner {
   constructor(
     private readonly configService: CliConfigService,
-    private readonly smartCorrectorService: SmartCorrectorService,
+    private readonly codeLinterAgent: CodeLinterAgentService,
     private readonly modelBuilderService: ModelBuilderService,
     private readonly fileManager: FileManagerService,
     private readonly loaderService: LoaderService
@@ -95,6 +89,11 @@ export class SmartCorrectorCommand extends CommandRunner {
 
     const fileContents = await this.loadFilesContent(filePaths);
 
+    if (Object.keys(fileContents).length !== 1) {
+      console.error('Please provide a single file to refactor.');
+      return;
+    }
+
     const modelConfig = config.model || {
       type: 'OpenAI',
       name: 'gpt-4-1106-preview',
@@ -111,12 +110,16 @@ export class SmartCorrectorCommand extends CommandRunner {
 
     const load = this.loaderService.createLoader({ text: 'Refactoring...' });
 
-    const newFileContents = await this.smartCorrectorService.refactorFiles(model, fileContents, {
-      prompt,
-      role: expertConfig.role,
-      codingStyles: codingStyles.join('\n'),
-      examples: examples.join('\n'),
-    });
+    const newFileContents = await this.codeLinterAgent.refactorFile(
+      model,
+      fileContents,
+      {
+        prompt,
+        role: expertConfig.role,
+        codingStyles: codingStyles.join('\n'),
+        examples: examples.join('\n'),
+      }
+    );
 
     await this.writeNewContents(newFileContents);
 

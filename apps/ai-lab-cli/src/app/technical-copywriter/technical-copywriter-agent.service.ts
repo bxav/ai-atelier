@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { AgentService } from './agent.service';
-import { writeDocumentTool } from './document-editor-tools';
+import { writeDocumentTool } from '../document-editor-tools';
 
 @Injectable()
 export class TechnicalCopywriterAgentService {
