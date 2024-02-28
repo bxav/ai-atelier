@@ -1,24 +1,36 @@
 import { Command, CommandRunner, InquirerService } from 'nest-commander';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import axios from 'axios';
 import { FileManagerService } from '@bxav/cli-utils';
 
 const BASE_CONTENT_CRAFTER_DIR = '.contentcrafter';
 const CONFIG_FILE_NAME = 'config.yml';
-const TEMPLATES_DIR_NAME = 'templates';
-const EXAMPLES_DIR_NAME = 'examples';
-const TEMPLATE_EXAMPLE_URL =
-  'https://raw.githubusercontent.com/bxav/ai-atelier/main/apps/content-crafter-cli/examples';
 
-const CONFIG_CONTENT_TEMPLATE = `contentAreas:
+const CONFIG_CONTENT_TEMPLATE = `# OpenAI API
+model:
+  type: OpenAI
+  name: gpt-4-1106-preview # gpt-4-1106-preview, ...
+  options:
+    temperature: 0.5
+
+# # Mistral API
+# model:
+#   type: Mistral
+#   name: mistral-small
+
+# # Local LLM
+# model:
+#   type: Ollama
+#   name: mistral # codellama:13b, ...
+
+contentAreas:
   {{contentType}}:
-    pattern: {{filePattern}}
-    voiceAndEthos: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/voice-and-ethos.md
-#    templates:
-#      - path: ./${BASE_CONTENT_CRAFTER_DIR}/{{contentType}}/template.md
-#    examples:
-#      - path: ./example.md`;
+    strategy: reflection
+    options:
+      writerPrompt: You are tasked with crafting engaging and impactful content for digital platforms. Deliver the most effective strategies and tailored recommendations to enhance the user's visibility and engagement through their posts. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.
+      reviewerPrompt: You are tasked with reviewing digital content. Provide feedback on the user's post and suggest improvements to enhance visibility and engagement on digital platforms. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.
+
+`;
 
 @Command({
   name: 'init',
@@ -33,13 +45,9 @@ export class InitCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    const { contentType, contentVoice, contentEthos, contentFilePattern } =
-      await this.inquirer.ask<{
-        contentType: string;
-        contentVoice: string;
-        contentEthos: string;
-        contentFilePattern: string;
-      }>('ask-content-area-questions', undefined);
+    const { contentType } = await this.inquirer.ask<{
+      contentType: string;
+    }>('ask-content-area-questions', undefined);
 
     console.log('Initializing ContentCrafter for', contentType, '...');
 
@@ -49,60 +57,13 @@ export class InitCommand extends CommandRunner {
     );
     await this.fileManager.ensureDirectory(contentCrafterDir);
 
-    const areaDir = path.join(contentCrafterDir, contentType);
-    await this.fileManager.ensureDirectory(areaDir);
-    // const templatesDir = path.join(areaDir, TEMPLATES_DIR_NAME);
-    // const examplesDir = path.join(areaDir, EXAMPLES_DIR_NAME);
-    // await this.fileManager.ensureDirectory(templatesDir);
-    // await this.fileManager.ensureDirectory(examplesDir);
-
-    await this.fetchAndSaveFile(
-      `${TEMPLATE_EXAMPLE_URL}/${contentType}/voice-and-ethos.md`,
-      areaDir,
-      'voice-and-ethos.md'
-    );
-
-    // await this.fetchAndSaveFile(
-    //   `${TEMPLATE_EXAMPLE_URL}/${contentArea}/example.md`,
-    //   examplesDir,
-    //   'example.md'
-    // );
-
     const configPath = path.join(contentCrafterDir, CONFIG_FILE_NAME);
-    const configContent = this.generateConfigContent(
-      contentType,
-      contentVoice,
-      contentEthos,
-      contentFilePattern
-    );
+    const configContent = this.generateConfigContent(contentType);
     await fs.writeFile(configPath, configContent);
     console.log(`Created config.yml for ${contentType} content area setup`);
   }
 
-  private async fetchAndSaveFile(
-    url: string,
-    directory: string,
-    filename: string
-  ): Promise<void> {
-    try {
-      const response = await axios.get(url);
-      const filePath = path.join(directory, filename);
-      await this.fileManager.writeFile(filePath, response.data);
-      console.log(`Fetched and saved ${filename}`);
-    } catch (error) {
-      console.error(`Failed to fetch and save ${filename}:`, error);
-    }
-  }
-
-  private generateConfigContent(
-    contentType: string,
-    contentVoice: string,
-    contentEthos: string,
-    contentFilePattern: string
-  ): string {
-    return CONFIG_CONTENT_TEMPLATE.replace(/{{contentType}}/g, contentType)
-      .replace('{{contentVoice}}', contentVoice)
-      .replace('{{contentEthos}}', contentEthos)
-      .replace('{{filePattern}}', contentFilePattern);
+  private generateConfigContent(contentType: string): string {
+    return CONFIG_CONTENT_TEMPLATE.replace(/{{contentType}}/g, contentType);
   }
 }

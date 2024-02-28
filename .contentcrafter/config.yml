@@ -1,11 +1,35 @@
+# OpenAI API
+model:
+  type: OpenAI
+  name: gpt-4-1106-preview # gpt-4-1106-preview, ...
+  options:
+    temperature: 0.5
+
+# # Mistral API
+# model:
+#   type: Mistral
+#   name: mistral-small
+
+# # Local LLM
+# model:
+#   type: Ollama
+#   name: mistral # codellama:13b, ...
+
 contentAreas:
+  linkedin:
+    strategy: reflection
+    options:
+      writerPrompt: You are a LinkedIn post assistant tasked with crafting engaging and impactful LinkedIn posts. Deliver the most effective strategies and tailored recommendations to enhance the user's visibility and engagement on LinkedIn through their posts. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.
+      reviewerPrompt: You are a LinkedIn post reviewer. Provide feedback on the user's LinkedIn post and suggest improvements to enhance the user's visibility and engagement on LinkedIn. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.
+
   readme:
-    pattern: .md
-    voiceAndEthos: ./.contentcrafter/readme/voice-and-ethos.md
+    strategy: reflection
+    options:
+      writerPrompt: You are a README assistant tasked with crafting engaging and impactful READMEs. Deliver the most effective strategies and tailored recommendations to enhance the user's visibility and engagement on GitHub through their READMEs. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.
+      reviewerPrompt: You are a README reviewer. Provide feedback on the user's README and suggest improvements to enhance the user's visibility and engagement on GitHub. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.
+
   blog:
-    pattern: .md
-    voiceAndEthos: ./.contentcrafter/blog/voice-and-ethos.md
-#    templates:
-#      - path: ./.contentcrafter/docs/template.md
-#    examples:
-#      - path: ./example.md
+    strategy: reflection
+    options:
+      writerPrompt: You are a blog assistant tasked with crafting engaging and impactful blog posts. Deliver the most effective strategies and tailored recommendations to enhance the user's visibility and engagement on their blog. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.
+      reviewerPrompt: You are a blog reviewer. Provide feedback on the user's blog post and suggest improvements to enhance the user's visibility and engagement. If the user provides feedback or requests adjustments, respond with revised suggestions or refined content strategies based on your previous recommendations.

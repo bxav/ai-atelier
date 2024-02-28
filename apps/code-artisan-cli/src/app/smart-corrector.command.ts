@@ -1,15 +1,6 @@
 import * as fs from 'fs';
-import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { Command, CommandRunner, Option } from 'nest-commander';
-import { BaseChatModel } from '@langchain/core/language_models/chat_models';
-import { LLM } from '@langchain/core/language_models/llms';
-import { RunnableSequence } from '@langchain/core/runnables';
-import { StringOutputParser } from '@langchain/core/output_parsers';
 
-import {
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-} from '@langchain/core/prompts';
 
 import {
   FileManagerService,

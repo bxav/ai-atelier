@@ -12,14 +12,4 @@ export class AskContentAreaQuestions {
   parseContentType(type: string): string {
     return type;
   }
-
-  @Question({
-    name: 'contentFilePattern',
-    message:
-      'Specify the file pattern for this content area (e.g., .md for Markdown files)',
-    default: '.md',
-  })
-  parseFilePattern(pattern: string) {
-    return pattern;
-  }
 }

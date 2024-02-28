@@ -1,22 +1,20 @@
 import { ConfigModule } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { InitCommand } from './init.command';
-import { EnhanceCommand } from './enhance.command';
 import { AskContentAreaQuestions } from './questions/content-area.questions';
 import { CliUtilsModule } from '@bxav/cli-utils';
-import { AnalyzeCommand } from './analyze.command';
 import { CliConfigService } from './cli-config.service';
-import { GenerateCommand } from './generate.command';
+import { CreateCommand } from './create.command';
+import { AskObjectiveQuestions } from './questions/ask-objective.questions';
 
 @Module({
   imports: [ConfigModule.forRoot(), CliUtilsModule],
   providers: [
     CliConfigService,
-    GenerateCommand,
-    AnalyzeCommand,
+    CreateCommand,
     InitCommand,
-    EnhanceCommand,
     AskContentAreaQuestions,
+    AskObjectiveQuestions,
   ],
 })
 export class AppModule {}

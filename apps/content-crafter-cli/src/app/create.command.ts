@@ -1,14 +1,10 @@
 import * as fs from 'fs';
-import { ChatPromptTemplate } from '@langchain/core/prompts';
-import { Command, CommandRunner, Option } from 'nest-commander';
-import { RunnableSequence } from '@langchain/core/runnables';
-import { StringOutputParser } from '@langchain/core/output_parsers';
-
 import {
-  HumanMessagePromptTemplate,
-  SystemMessagePromptTemplate,
-  AIMessagePromptTemplate,
-} from '@langchain/core/prompts';
+  Command,
+  CommandRunner,
+  InquirerService,
+  Option,
+} from 'nest-commander';
 
 import {
   FileManagerService,
@@ -17,14 +13,19 @@ import {
   getChangedFiles,
   loadTextFile,
 } from '@bxav/cli-utils';
+import { WriterWithReflectionAgent } from './writer-with-reflection-agent';
 import { CliConfigService } from './cli-config.service';
 
-@Command({ name: 'generate', description: 'Generate new content' })
-export class GenerateCommand extends CommandRunner {
+@Command({
+  name: 'create',
+  description: 'Create new content',
+})
+export class CreateCommand extends CommandRunner {
   constructor(
-    private readonly modelBuilderService: ModelBuilderService,
     private readonly configService: CliConfigService,
+    private readonly modelBuilderService: ModelBuilderService,
     private readonly fileManager: FileManagerService,
+    private readonly inquirer: InquirerService,
     private readonly loaderService: LoaderService
   ) {
     super();
@@ -43,8 +44,13 @@ export class GenerateCommand extends CommandRunner {
     const config = await this.configService.loadConfig(options.config);
     if (!config) {
       console.warn(
-        'Failed to load configuration.\nPlease run `content-crafter init` to initialize ContentCrafter.'
+        'Failed to load configuration.\nPlease run `code-artisan init` to initialize CodeArtisan.'
       );
+      return;
+    }
+
+    if (!this.configService.validate(config)) {
+      console.error('Fix your configuration file.');
       return;
     }
 
@@ -63,10 +69,12 @@ export class GenerateCommand extends CommandRunner {
     }
 
     console.log(
-      `Generating content for ${contentType} with focus on ${contentArea.focus}...`
+      `Generating content for ${contentType}...`
     );
 
-    const voiceAndEthos = await loadTextFile(contentArea.voiceAndEthos);
+    const objective = await this.promptForObjective();
+
+    console.log('Objective:', objective);
 
     let filePaths = params;
     if (!filePaths.length) {
@@ -78,60 +86,39 @@ export class GenerateCommand extends CommandRunner {
 
     const fileContents = await this.loadFilesContent(filePaths);
 
-    const content = await this.generateContent(
-      fileContents,
-      options.objective,
-      voiceAndEthos
-    );
+    const modelConfig = config.model || {
+      type: 'OpenAI',
+      name: 'gpt-4-1106-preview',
+      options: {
+        temperature: 0,
+      },
+    };
 
-    console.log('New content:\n', content);
-    fs.writeFileSync(options.output, content);
-  }
-
-  private async generateContent(
-    fileContents: Record<string, string>,
-    objective: string,
-    voiceAndEthos: string
-  ): Promise<string> {
     const model = await this.modelBuilderService.buildModel(
-      'OpenAI',
-      'gpt-4-1106-preview',
-      {
-        temperature: 0.7,
-      }
+      modelConfig.type,
+      modelConfig.name,
+      modelConfig.options
     );
 
-    console.log('Generate content...');
+    const load = this.loaderService.createLoader({ text: 'Refactoring...' });
 
-    const template = ChatPromptTemplate.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(
-        `Based on the a given voice and ethos:
-        ${voiceAndEthos}
+    if (contentArea.strategy === 'reflection') {
+      const agent = new WriterWithReflectionAgent({
+        model,
+        writerPrompt: contentArea.options.writerPrompt,
+        reviewerPrompt: contentArea.options.reviewerPrompt,
+      });
 
-        Give me the content you want me to consider:
-        `
-      ),
-      HumanMessagePromptTemplate.fromTemplate('{content}'),
-      AIMessagePromptTemplate.fromTemplate(
-        'I will give you direclty the content you want me to consider in the next message. But first what is the objective of the content you want me to generate?'
-      ),
-      HumanMessagePromptTemplate.fromTemplate('{objective}'),
-    ]);
-    const outputParser = new StringOutputParser();
-    const chain = RunnableSequence.from([template, model, outputParser]);
+      const post = await agent.createPost(
+        [objective, Object.values(fileContents).join('\n')].filter(Boolean)
+      );
 
-    const load = this.loaderService.createLoader({
-      text: 'Generate content...',
-    });
+      console.log(post);
+    }
 
-    const newContent = await chain.invoke({
-      content: Object.entries(fileContents).map(([filePath, content]) => `${filePath}:\n\`\`\`\n${content}\n\`\`\``).join('\n\n'),
-      objective,
-    });
+    // await this.writeNewContents(newFileContents);
 
     load.stop();
-
-    return newContent;
   }
 
   private async loadFilesContent(
@@ -182,5 +169,13 @@ export class GenerateCommand extends CommandRunner {
   })
   parseCommitDiff(val: string) {
     return val;
+  }
+
+  async promptForObjective(): Promise<string> {
+    const { objective } = await this.inquirer.ask<{ objective: string }>(
+      'ask-objective-questions',
+      undefined
+    );
+    return objective;
   }
 }
