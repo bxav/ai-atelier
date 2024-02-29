@@ -44,7 +44,7 @@ export class CreateCommand extends CommandRunner {
     const config = await this.configService.loadConfig(options.config);
     if (!config) {
       console.warn(
-        'Failed to load configuration.\nPlease run `code-artisan init` to initialize CodeArtisan.'
+        'Failed to load configuration.\nPlease run `content-crafter init` to initialize ContentCrafter.'
       );
       return;
     }
@@ -68,19 +68,15 @@ export class CreateCommand extends CommandRunner {
       return;
     }
 
-    console.log(
-      `Generating content for ${contentType}...`
-    );
+    console.log(`Generating content for ${contentType}...`);
 
     const objective = await this.promptForObjective();
 
     console.log('Objective:', objective);
 
     let filePaths = params;
-    if (!filePaths.length) {
-      filePaths = await getChangedFiles(options.commitDiff || undefined);
-      return;
-    } else {
+
+    if (filePaths.length) {
       filePaths = await this.fileManager.getFiles(filePaths);
     }
 
@@ -109,14 +105,12 @@ export class CreateCommand extends CommandRunner {
         reviewerPrompt: contentArea.options.reviewerPrompt,
       });
 
-      const post = await agent.createPost(
+      const [post, messages] = await agent.createContent(
         [objective, Object.values(fileContents).join('\n')].filter(Boolean)
       );
 
       console.log(post);
     }
-
-    // await this.writeNewContents(newFileContents);
 
     load.stop();
   }
@@ -152,14 +146,6 @@ export class CreateCommand extends CommandRunner {
     description: 'Specify the type of document to enhance',
   })
   parseObjective(val: string) {
-    return val;
-  }
-
-  @Option({
-    flags: '-o, --output [path]',
-    description: 'Path to the output file',
-  })
-  parseOutput(val: string) {
     return val;
   }
 

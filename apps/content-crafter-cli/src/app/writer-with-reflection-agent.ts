@@ -33,27 +33,23 @@ export class WriterWithReflectionAgent {
     this.maxReviews = maxReviews;
   }
 
-  async createPost(instructions: string[]): Promise<string> {
-    const chain = this.buildWriterPrompt().pipe(this.model);
-    const reflect = this.buildReviewerPrompt().pipe(this.model);
+  async createContent(
+    instructions: string[]
+  ): Promise<[post: string, messages: BaseMessage[]]> {
+    const chain = this.buildPrompt(this.writerPrompt).pipe(this.model);
+    const reflect = this.buildPrompt(this.reviewerPrompt).pipe(this.model);
     const workflow = this.composeWorkflow(chain, reflect);
     const agent = workflow.compile();
     const messages = await agent.invoke(
       instructions.map((i) => new HumanMessage(i))
     );
-    return messages.slice(-1)[0].content;
+
+    return [messages.slice(-1)[0].content, messages];
   }
 
-  private buildWriterPrompt(): ChatPromptTemplate {
+  private buildPrompt(prompt: string): ChatPromptTemplate {
     return ChatPromptTemplate.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(this.writerPrompt),
-      new MessagesPlaceholder('messages'),
-    ]);
-  }
-
-  private buildReviewerPrompt(): ChatPromptTemplate {
-    return ChatPromptTemplate.fromMessages([
-      SystemMessagePromptTemplate.fromTemplate(this.reviewerPrompt),
+      SystemMessagePromptTemplate.fromTemplate(prompt),
       new MessagesPlaceholder('messages'),
     ]);
   }

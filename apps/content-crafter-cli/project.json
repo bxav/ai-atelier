@@ -28,7 +28,9 @@
         "webpackConfig": "apps/content-crafter-cli/webpack.config.js"
       },
       "configurations": {
-        "development": {},
+        "development": {
+          "sourceMap": true
+        },
         "production": {}
       }
     },
