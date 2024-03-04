@@ -13,7 +13,7 @@ import {
   getChangedFiles,
   loadTextFile,
 } from '@bxav/cli-utils';
-import { WriterWithReflectionAgent } from './writer-with-reflection-agent';
+import { WriterWithReflectionAgent } from '@bxav/node-ai-agents';
 import { CliConfigService } from './cli-config.service';
 
 @Command({

@@ -15,12 +15,13 @@ export class WriterWithReflectionAgent {
   private writerPrompt: string;
   private reviewerPrompt: string;
   private maxReviews: number;
+  private instructionsLength: number;
 
   constructor({
     model,
     writerPrompt,
     reviewerPrompt,
-    maxReviews = 6,
+    maxReviews = 3,
   }: {
     model: RunnableLike;
     writerPrompt: string;
@@ -36,6 +37,7 @@ export class WriterWithReflectionAgent {
   async createContent(
     instructions: string[]
   ): Promise<[post: string, messages: BaseMessage[]]> {
+    this.instructionsLength = instructions.length;
     const chain = this.buildPrompt(this.writerPrompt).pipe(this.model);
     const reflect = this.buildPrompt(this.reviewerPrompt).pipe(this.model);
     const workflow = this.composeWorkflow(chain, reflect);
@@ -79,17 +81,32 @@ export class WriterWithReflectionAgent {
 
   private createReflectionNode(reflect) {
     return async (messages: BaseMessage[], config?) => {
-      const clsMap = { ai: HumanMessage, human: AIMessage };
-      const translated = messages.map((msg, i) =>
-        i === 0 ? msg : new clsMap[msg._getType()](msg.content)
+      const messageClassMap = {
+        ai: HumanMessage,
+        human: AIMessage,
+      };
+
+      const translatedMessages = messages.map((message, index) => {
+        const isOriginalMessage = index < this.instructionsLength;
+        if (isOriginalMessage) {
+          return message;
+        }
+
+        const MessageClass = messageClassMap[message._getType()];
+        return new MessageClass(message.content);
+      });
+
+      const reflectionResult = await reflect.invoke(
+        { messages: translatedMessages },
+        config
       );
-      const res = await reflect.invoke({ messages: translated }, config);
-      return [new HumanMessage(res.content)];
+
+      return [new HumanMessage(reflectionResult.content)];
     };
   }
 
   private determineContinuation() {
     return (messages: BaseMessage[]) =>
-      messages.length > this.maxReviews ? END : 'reflect';
+      messages.length > this.maxReviews * 2 ? END : 'reflect';
   }
 }

@@ -37,6 +37,7 @@
       "@bxav/code-artisan": ["packages/code-artisan/src/index.ts"],
       "@bxav/kit-chatbot": ["packages/kit-chatbot/src/index.ts"],
       "@bxav/kit-chatbot/server": ["packages/kit-chatbot/src/server.ts"],
+      "@bxav/node-ai-agents": ["packages/node-ai-agents/src/index.ts"],
       "@bxav/shared-ai-models-config": [
         "packages/shared-ai-models-config/src/index.ts"
       ],

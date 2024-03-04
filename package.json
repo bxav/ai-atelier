@@ -45,6 +45,7 @@
     "clsx": "^2.1.0",
     "cmdk": "^0.2.0",
     "date-fns": "^3.3.1",
+    "html-to-text": "^9.0.5",
     "jotai": "^2.6.2",
     "langchain": "^0.1.21",
     "loading-cli": "^1.1.2",
