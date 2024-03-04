@@ -8,7 +8,6 @@ import { AssistantChat as AssistantChatUi } from '@bxav/kit-chatbot';
 import { cn } from '@bxav/ui-utils';
 
 import { AssistantActions } from './assistant-actions';
-import { InsufficientTokenAlert } from './insufficient-token-alert';
 import { updateAssistantAction } from '../actions/update-assistant-action';
 import { useAssistant } from '../hooks/use-assistant';
 import { useAssistantLayout } from '../contexts/assistant-layout-context';
@@ -18,7 +17,6 @@ const AssistantChat = () => {
   const { isSignedIn } = useUser();
   const [selectedAssistant, setSelectedAssistant] = useAssistant();
   const [isPending, startTransition] = React.useTransition();
-  const [open, setOpen] = React.useState(false);
   return (
     <>
       <AssistantActions
@@ -30,12 +28,11 @@ const AssistantChat = () => {
           'flex flex-col h-[calc(100vh-106px)] lg:h-[calc(100vh-52px)]'
         )}
       >
-        <InsufficientTokenAlert open={open} setOpen={setOpen} />
         <Separator />
         <AssistantChatUi
           hideSendButton={!isSignedIn}
           assistant={selectedAssistant as any}
-          onError={() => setOpen(true)}
+          onError={() => console.error('error')}
           onNewMessages={(newMessages: any) =>
             setSelectedAssistant({
               ...selectedAssistant,

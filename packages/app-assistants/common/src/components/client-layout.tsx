@@ -15,7 +15,6 @@ import {
   SheetTrigger,
   TooltipProvider,
 } from '@bxav/ui-components';
-import { CreditActions } from './credit-actions';
 import { WideScreenClientLayout } from './wide-screen-client-layout';
 
 type MobileSidebarProps = {
@@ -77,12 +76,6 @@ const Header: React.FC<HeaderProps> = ({ user, mobileSidebar }) => (
     />
     {mobileSidebar && <span className="w-full" />}
     <div className="ml-auto flex items-center space-x-4">
-      {user && (
-        <CreditActions
-          creditBalance={user.creditBalance}
-          showManageAccount={!!user.stripeCustomerId}
-        />
-      )}
       <SignedIn>
         <UserButton afterSignOutUrl="/" />
       </SignedIn>

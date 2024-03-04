@@ -75,7 +75,7 @@ export const accounts = [
   {
     name: 'www',
     label: 'The AI Lab',
-    url: 'https://www.buill.it/ai-lab',
+    url: 'https://www.buill.it/ai-atelier',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

@@ -16,16 +16,8 @@ model User {
   id         String @id @default(cuid())
   externalId String @unique
 
-  creditBalance Int @default(0)
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  stripeCustomerId String? @unique
-  stripePriceId    String?
-
-  termsVersion   DateTime?
-  privacyVersion DateTime?
 
   presets Preset[]
 }

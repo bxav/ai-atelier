@@ -4,12 +4,10 @@ export const runtime = 'edge';
 
 import { NextResponse } from 'next/server';
 
-import { db, getCurrentUser } from '@bxav/app-assistants-common/server';
 import { models } from '@bxav/shared-ai-models-config';
 
 export async function POST(req: Request) {
   const { messages, lastMessage, ...values } = await req.json();
-  const user = await getCurrentUser();
   const model = models.find(
     (m) => m.name === (values.config.model || 'gpt-3.5-turbo-1106')
   );
@@ -17,15 +15,6 @@ export async function POST(req: Request) {
   if (!model) {
     return NextResponse.json({ error: 'invalid_model' }, { status: 400 });
   }
-
-  if (user.creditBalance < model.token) {
-    return NextResponse.json({ error: 'insufficient_tokens' }, { status: 400 });
-  }
-
-  await db.user.update({
-    where: { id: user.id },
-    data: { creditBalance: user.creditBalance - model.token },
-  });
 
   const res = await fetch(`${process.env.AI_LAB_API_BASE_URL}/completions`, {
     method: 'POST',

@@ -47,12 +47,6 @@ const AssistantChat = ({
     }
   }, [messages]);
 
-  useEffect(() => {
-    if (error && JSON.parse(error.message).error === 'insufficient_tokens') {
-      onError();
-    }
-  }, [error]);
-
   return (
     <div className="flex h-full flex-1 flex-col">
       <ScrollArea className="h-full">

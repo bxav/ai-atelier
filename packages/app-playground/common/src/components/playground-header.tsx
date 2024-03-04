@@ -5,7 +5,6 @@ import { AppSwitcher } from '@bxav/ui-saas-components';
 import { Button } from '@bxav/ui-components';
 import { cn } from '@bxav/ui-utils';
 
-import { CreditActions } from './credit-actions';
 import { PresetActions } from './preset-actions';
 import { PresetSave } from './preset-save';
 import { PresetSelector } from './preset-selector';
@@ -41,12 +40,6 @@ export const PlaygroundHeader = ({
       <AppSwitcher currentApp="playground" className="w-auto" />
       <div className="flex space-x-2 sm:hidden">
         <div className="flex items-center space-x-2 ">
-          {user && (
-            <CreditActions
-              creditBalance={user.creditBalance}
-              showManageAccount={!!user.stripeCustomerId}
-            />
-          )}
           <LoginButton />
         </div>
       </div>
@@ -57,12 +50,6 @@ export const PlaygroundHeader = ({
           <PresetSelector presets={user.presets} />
           <PresetSave />
           <PresetActions />
-          <div className="hidden sm:block">
-            <CreditActions
-              creditBalance={user.creditBalance}
-              showManageAccount={!!user.stripeCustomerId}
-            />
-          </div>
         </>
       )}
 
