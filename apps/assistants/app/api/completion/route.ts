@@ -1,6 +1,6 @@
-// Optional, but recommended: run on the edge runtime.
-// See https://vercel.com/docs/concepts/functions/edge-functions
-export const runtime = 'edge';
+// NextAuth.js cannot use the run Edge Runtime for initialization.
+// The upcoming @auth/nextjs library (which will replace next-auth) on the other hand will be fully compatible.
+// export const runtime = 'edge';
 
 import { NextResponse } from 'next/server';
 
