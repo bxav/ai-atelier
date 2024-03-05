@@ -1,11 +1,13 @@
 import { AvatarProps } from '@radix-ui/react-avatar';
 
 import { UserIcon } from 'lucide-react';
-import { User } from '@prisma/client/assistants';
 import { Avatar, AvatarFallback, AvatarImage } from '@bxav/ui-components';
 
 interface UserAvatarProps extends AvatarProps {
-  user: Pick<User, 'image' | 'name'>;
+  user: {
+    name?: string | null;
+    image?: string | null;
+  };
 }
 
 export function UserAvatar({ user, ...props }: UserAvatarProps) {
