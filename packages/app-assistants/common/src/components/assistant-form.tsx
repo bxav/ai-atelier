@@ -23,7 +23,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@bxav/ui-components';
-import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import { Textarea } from '@bxav/ui-components';
 import { createAssistantAction } from '../actions/create-assistant-action';
 import { updateAssistantAction } from '../actions/update-assistant-action';
@@ -116,17 +115,10 @@ const AssistantForm = ({ onUpdated }: AssistantFormProps) => {
 
   return (
     <Form {...form}>
-      <SignedOut>
-        <SignInButton>
-          <Button className="mb-6 w-full">Sign in & Save</Button>
-        </SignInButton>
-      </SignedOut>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <SignedIn>
-          <Button type="submit" className="w-full" disabled={isPending}>
-            Save
-          </Button>
-        </SignedIn>
+        <Button type="submit" className="w-full" disabled={isPending}>
+          Save
+        </Button>
         <FormField
           control={form.control}
           name="name"

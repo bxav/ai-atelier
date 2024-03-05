@@ -5,8 +5,10 @@ export const runtime = 'edge';
 import { NextResponse } from 'next/server';
 
 import { models } from '@bxav/shared-ai-models-config';
+import { getCurrentUser } from '@bxav/app-assistants-common/server';
 
 export async function POST(req: Request) {
+  const user = await getCurrentUser();
   const { messages, lastMessage, ...values } = await req.json();
   const model = models.find(
     (m) => m.name === (values.config.model || 'gpt-3.5-turbo-1106')
@@ -14,6 +16,10 @@ export async function POST(req: Request) {
 
   if (!model) {
     return NextResponse.json({ error: 'invalid_model' }, { status: 400 });
+  }
+
+  if (!user.vetted) {
+    return NextResponse.json({ error: 'unvetted_user' }, { status: 403 });
   }
 
   const res = await fetch(`${process.env.AI_LAB_API_BASE_URL}/completions`, {

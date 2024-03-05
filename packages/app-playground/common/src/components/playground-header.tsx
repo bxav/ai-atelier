@@ -1,26 +1,12 @@
 import { HTMLAttributes } from 'react';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 
 import { AppSwitcher } from '@bxav/ui-saas-components';
-import { Button } from '@bxav/ui-components';
 import { cn } from '@bxav/ui-utils';
+import { UserAccountNav } from '@bxav/kit-auth';
 
 import { PresetActions } from './preset-actions';
 import { PresetSave } from './preset-save';
 import { PresetSelector } from './preset-selector';
-
-const LoginButton = () => (
-  <>
-    <SignedIn>
-      <UserButton afterSignOutUrl="/" />
-    </SignedIn>
-    <SignedOut>
-      <SignInButton>
-        <Button>Sign in</Button>
-      </SignInButton>
-    </SignedOut>
-  </>
-);
 
 export const PlaygroundHeader = ({
   className,
@@ -40,7 +26,15 @@ export const PlaygroundHeader = ({
       <AppSwitcher currentApp="playground" className="w-auto" />
       <div className="flex space-x-2 sm:hidden">
         <div className="flex items-center space-x-2 ">
-          <LoginButton />
+          {user && (
+            <UserAccountNav
+              user={{
+                name: user.name,
+                image: user.image,
+                email: user.email,
+              }}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -54,7 +48,15 @@ export const PlaygroundHeader = ({
       )}
 
       <div className="hidden sm:block">
-        <LoginButton />
+        {user && (
+          <UserAccountNav
+            user={{
+              name: user.name,
+              image: user.image,
+              email: user.email,
+            }}
+          />
+        )}
       </div>
     </div>
   </div>

@@ -1,9 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { SignInButton, useUser } from '@clerk/nextjs';
 
-import { Button, Separator } from '@bxav/ui-components';
+import { Separator } from '@bxav/ui-components';
 import { AssistantChat as AssistantChatUi } from '@bxav/kit-chatbot';
 import { cn } from '@bxav/ui-utils';
 
@@ -14,7 +13,6 @@ import { useAssistantLayout } from '../contexts/assistant-layout-context';
 
 const AssistantChat = () => {
   const { showConfig, setShowConfig } = useAssistantLayout();
-  const { isSignedIn } = useUser();
   const [selectedAssistant, setSelectedAssistant] = useAssistant();
   const [isPending, startTransition] = React.useTransition();
   return (
@@ -30,7 +28,6 @@ const AssistantChat = () => {
       >
         <Separator />
         <AssistantChatUi
-          hideSendButton={!isSignedIn}
           assistant={selectedAssistant as any}
           onError={() => console.error('error')}
           onNewMessages={(newMessages: any) =>
@@ -64,7 +61,7 @@ const AssistantChat = () => {
             }
           }}
         />
-        {!isSignedIn && (
+        {/* {!isSignedIn && (
           <>
             <div className="flex items-center pb-4 pr-4">
               <div></div>
@@ -75,7 +72,7 @@ const AssistantChat = () => {
               </div>
             </div>
           </>
-        )}
+        )} */}
       </div>
     </>
   );

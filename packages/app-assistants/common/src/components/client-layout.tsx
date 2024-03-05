@@ -1,12 +1,12 @@
 'use client';
 
 import { MenuIcon } from 'lucide-react';
-import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { useMediaQuery } from 'react-responsive';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 import { AppSwitcher } from '@bxav/ui-saas-components';
+import { UserAccountNav } from '@bxav/kit-auth';
 import {
   Button,
   Separator,
@@ -15,6 +15,7 @@ import {
   SheetTrigger,
   TooltipProvider,
 } from '@bxav/ui-components';
+
 import { WideScreenClientLayout } from './wide-screen-client-layout';
 
 type MobileSidebarProps = {
@@ -76,14 +77,15 @@ const Header: React.FC<HeaderProps> = ({ user, mobileSidebar }) => (
     />
     {mobileSidebar && <span className="w-full" />}
     <div className="ml-auto flex items-center space-x-4">
-      <SignedIn>
-        <UserButton afterSignOutUrl="/" />
-      </SignedIn>
-      <SignedOut>
-        <SignInButton>
-          <Button size="sm">Sign in</Button>
-        </SignInButton>
-      </SignedOut>
+      {user && (
+        <UserAccountNav
+          user={{
+            name: user.name,
+            image: user.image,
+            email: user.email,
+          }}
+        />
+      )}
     </div>
   </div>
 );

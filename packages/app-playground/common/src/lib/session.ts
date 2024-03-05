@@ -1,5 +1,7 @@
-import { auth } from '@clerk/nextjs';
+import { getServerSession } from 'next-auth/next';
+
 import { db } from './db';
+import { authOptions } from './auth';
 
 export async function getCurrentUser({ withPresets = false }) {
   const user = await findCurrentUser({ withPresets });
@@ -12,7 +14,9 @@ export async function getCurrentUser({ withPresets = false }) {
 }
 
 export async function findCurrentUser({ withPresets = false }) {
-  const { userId } = auth();
+  const session = await getServerSession(authOptions);
+
+  const userId = (session?.user as any).id;
 
   if (!userId) {
     return null;
@@ -20,23 +24,12 @@ export async function findCurrentUser({ withPresets = false }) {
 
   let user = await db.user.findUnique({
     where: {
-      externalId: userId as string,
+      id: userId as string,
     },
     include: {
       presets: withPresets,
     },
   });
-
-  if (!user) {
-    user = await db.user.create({
-      data: {
-        externalId: userId as string,
-      },
-      include: {
-        presets: withPresets,
-      },
-    });
-  }
 
   return user;
 }

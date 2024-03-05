@@ -1,5 +1,3 @@
-import { ClerkProvider } from '@clerk/nextjs';
-
 import { GetCal } from '@bxav/ui-saas-components';
 import { Toaster } from '@bxav/ui-components';
 
@@ -16,14 +14,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body>
-          {children}
-          <GetCal calLink="bxav1/15min" />
-        </body>
-        <Toaster />
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body>
+        {children}
+        <GetCal calLink="bxav1/15min" />
+      </body>
+      <Toaster />
+    </html>
   );
 }

@@ -27,7 +27,7 @@
     "../../dist/apps/assistants/.next/types/**/*.ts",
     "next-env.d.ts",
     ".next/types/**/*.ts"
-  ],
+, "../../packages/app-assistants/common/src/components/auth/user-auth-form.tsx"  ],
   "exclude": [
     "node_modules",
     "jest.config.ts",

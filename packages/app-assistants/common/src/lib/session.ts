@@ -1,5 +1,7 @@
-import { auth } from '@clerk/nextjs';
+import { getServerSession } from 'next-auth/next';
+
 import { db } from './db';
+import { authOptions } from './auth';
 
 export async function getCurrentUser() {
   const user = await findCurrentUser();
@@ -12,7 +14,9 @@ export async function getCurrentUser() {
 }
 
 export async function findCurrentUser() {
-  const { userId } = auth();
+  const session = await getServerSession(authOptions);
+
+  const userId = (session?.user as any).id;
 
   if (!userId) {
     return null;
@@ -20,17 +24,9 @@ export async function findCurrentUser() {
 
   let user = await db.user.findUnique({
     where: {
-      externalId: userId as string,
+      id: userId as string,
     },
   });
-
-  if (!user) {
-    user = await db.user.create({
-      data: {
-        externalId: userId as string,
-      },
-    });
-  }
 
   return user;
 }

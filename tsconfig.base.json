@@ -35,6 +35,8 @@
       ],
       "@bxav/cli-utils": ["packages/cli-utils/src/index.ts"],
       "@bxav/code-artisan": ["packages/code-artisan/src/index.ts"],
+      "@bxav/kit-auth": ["packages/kit-auth/src/index.ts"],
+      "@bxav/kit-auth/server": ["packages/kit-auth/src/server.ts"],
       "@bxav/kit-chatbot": ["packages/kit-chatbot/src/index.ts"],
       "@bxav/kit-chatbot/server": ["packages/kit-chatbot/src/server.ts"],
       "@bxav/node-ai-agents": ["packages/node-ai-agents/src/index.ts"],
